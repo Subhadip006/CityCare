@@ -1,0 +1,16 @@
+# Node
+client/node_modules/
+client/dist/
+
+# Go
+server/*.exe
+server/*.out
+server/.env
+
+# Logs and misc
+*.log
+.env
+.vscode/
+.idea/
+.DS_Store
+
