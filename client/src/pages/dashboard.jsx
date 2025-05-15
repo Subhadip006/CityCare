@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import StatusBox from '../components/statusBox';
 
 function Dashboard() {
   const [message, setMessage] = useState('');
   const [userId, setUserId] = useState(null);
   const [error, setError] = useState('');
+  const [name, setName] = useState('Jhon');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,11 +45,43 @@ function Dashboard() {
     fetchDashboard();
   }, []);
 
+  const handleUpdateClick = () => {
+      navigate('/profile/update')
+  }
+
   return (
-    <div className='flex items-center flex-col justify-center min-h-screen'>
-        {error && <div>{error}</div>}
-        <div>User id : {userId}</div>
-        <div>{message}</div>
+    
+    <div className='min-h-screen w-full bg-[#F9F7F3] text-[#cfb961]'>
+        <Navbar />
+
+        <div className='text-4xl text-[#F7A072] border-[#cfb961] font-bold font-sans text-center mt-4 border-3 p-2 m-4 rounded-2xl shadow-md'>Dashboard</div>
+        <div className='grid grid-cols-3 min-h-screen gap-3 mx-6'>
+          <div className='col-span-2 border-3 rounded-3xl shadow-xl'>
+              <div className='text-center text-3xl font-semibold text-[#F7A072]'>Complaint Status</div>
+              <StatusBox title = "subhadip" description="sdfsdfsdf" status="done"/>
+          </div>
+          <div className='col-span-1 w-full border-3 rounded-3xl '>
+            <div className='text-3xl my-3 text-[#F7A072] font-bold text-center'>Profile</div>
+            <div className='border-1 mx-6 border-amber-800'></div>
+            <div className="w-40 h-40 rounded-full overflow-hidden border-2 mx-auto my-4 border-gray-300">
+            <img
+                src="https://placehold.co/400"
+                alt="Profile"
+                className="w-full h-full object-cover"
+            />
+            </div>
+
+            <div className='text-2xl font-semibold text-center'>{name}</div>
+            <div className="flex justify-center mt-4">
+            <button
+              onClick={handleUpdateClick}
+              className="bg-[#F7A072] text-white px-6 py-2 rounded-full hover:bg-[#e58e60] transition-all"
+            >
+              Update
+            </button>
+          </div>
+          </div>
+        </div>
     </div>
   );
 }
