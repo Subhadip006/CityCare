@@ -1,0 +1,39 @@
+"filename", "language", "MS SQL", "Go", "Go Checksum File", "Go Module File", "Markdown", "JSON", "JavaScript", "XML", "HTML", "CSS", "JavaScript JSX", "comment", "blank", "total"
+"/home/subhadip/projects/Citycare/README.md", "Markdown", 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1, 3
+"/home/subhadip/projects/Citycare/client/README.md", "Markdown", 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 6, 13
+"/home/subhadip/projects/Citycare/client/eslint.config.js", "JavaScript", 0, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 2, 34
+"/home/subhadip/projects/Citycare/client/index.html", "HTML", 0, 0, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0, 1, 15
+"/home/subhadip/projects/Citycare/client/package-lock.json", "JSON", 0, 0, 0, 0, 0, 4272, 0, 0, 0, 0, 0, 0, 1, 4273
+"/home/subhadip/projects/Citycare/client/package.json", "JSON", 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 1, 31
+"/home/subhadip/projects/Citycare/client/public/vite.svg", "XML", 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1
+"/home/subhadip/projects/Citycare/client/src/App.css", "CSS", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 2
+"/home/subhadip/projects/Citycare/client/src/App.jsx", "JavaScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 2, 25
+"/home/subhadip/projects/Citycare/client/src/assets/react.svg", "XML", 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1
+"/home/subhadip/projects/Citycare/client/src/components/Button.jsx", "JavaScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 2, 14
+"/home/subhadip/projects/Citycare/client/src/components/Footer.jsx", "JavaScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 39, 0, 2, 41
+"/home/subhadip/projects/Citycare/client/src/components/Hero.jsx", "JavaScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 4, 19
+"/home/subhadip/projects/Citycare/client/src/components/Navbar.jsx", "JavaScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 2, 19
+"/home/subhadip/projects/Citycare/client/src/index.css", "CSS", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"/home/subhadip/projects/Citycare/client/src/main.jsx", "JavaScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 3, 24
+"/home/subhadip/projects/Citycare/client/src/pages/Login.jsx", "JavaScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 78, 0, 15, 93
+"/home/subhadip/projects/Citycare/client/src/pages/NotFound.jsx", "JavaScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 2, 11
+"/home/subhadip/projects/Citycare/client/src/pages/Register.jsx", "JavaScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 99, 0, 15, 114
+"/home/subhadip/projects/Citycare/client/src/pages/dashboard.jsx", "JavaScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 46, 0, 9, 55
+"/home/subhadip/projects/Citycare/client/tailwind.config.js", "JavaScript", 0, 0, 0, 0, 0, 0, 22, 0, 0, 0, 0, 2, 3, 27
+"/home/subhadip/projects/Citycare/client/vite.config.js", "JavaScript", 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 1, 2, 9
+"/home/subhadip/projects/Citycare/create_table.sql", "MS SQL", 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 7
+"/home/subhadip/projects/Citycare/package-lock.json", "JSON", 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 1, 7
+"/home/subhadip/projects/Citycare/server/cmd/main.go", "Go", 0, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 33
+"/home/subhadip/projects/Citycare/server/config/config.go", "Go", 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 26
+"/home/subhadip/projects/Citycare/server/go.mod", "Go Module File", 0, 0, 0, 31, 0, 0, 0, 0, 0, 0, 0, 0, 4, 35
+"/home/subhadip/projects/Citycare/server/go.sum", "Go Checksum File", 0, 0, 67, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 68
+"/home/subhadip/projects/Citycare/server/pkg/db/db.go", "Go", 0, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 37
+"/home/subhadip/projects/Citycare/server/pkg/handlers/auth/login.go", "Go", 0, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 55
+"/home/subhadip/projects/Citycare/server/pkg/handlers/auth/register.go", "Go", 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 34
+"/home/subhadip/projects/Citycare/server/pkg/handlers/dashboardHandler.go", "Go", 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 26
+"/home/subhadip/projects/Citycare/server/pkg/middleware/middleware.go", "Go", 0, 34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 49
+"/home/subhadip/projects/Citycare/server/pkg/models/complaint.go", "Go", 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 22
+"/home/subhadip/projects/Citycare/server/pkg/models/users.go", "Go", 0, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 22
+"/home/subhadip/projects/Citycare/server/pkg/routes/routes.go", "Go", 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6, 20
+"/home/subhadip/projects/Citycare/server/pkg/utils/jwt.go", "Go", 0, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 28
+"Total", "-", 6, 250, 67, 31, 9, 4308, 60, 2, 14, 1, 359, 4, 183, 5294
