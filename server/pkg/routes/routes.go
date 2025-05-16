@@ -16,4 +16,5 @@ func Setup(app *fiber.App) {
 	protected := app.Group("/", middleware.Protected())
 
 	protected.Get("/dashboard", handlers.DashboardHandler)
+	protected.Post("/complaint", handlers.ComplaintSubmit)
 }
