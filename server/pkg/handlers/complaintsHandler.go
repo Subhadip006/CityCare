@@ -53,3 +53,26 @@ func ComplaintSubmit(c *fiber.Ctx) error {
 	})
 
 }
+
+func GetComplaints(c *fiber.Ctx) error {
+
+	userID := c.Locals("user_id")
+
+	user, ok := userID.(uint)
+
+	if !ok {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid User",
+		})
+	}
+
+	var complaints []models.Complaint
+
+	if err := db.DB.Where("user_id = ?", user).Find(&complaints).Error; err != nil {
+		c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "unable to fetch complaints",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(complaints)
+}
