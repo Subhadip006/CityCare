@@ -17,4 +17,5 @@ func Setup(app *fiber.App) {
 
 	protected.Get("/dashboard", handlers.DashboardHandler)
 	protected.Post("/complaint", handlers.ComplaintSubmit)
+	protected.Get("/fetch-complaints", handlers.GetComplaints)
 }
