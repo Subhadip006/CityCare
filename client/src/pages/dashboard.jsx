@@ -8,43 +8,65 @@ function Dashboard() {
   const [userId, setUserId] = useState(null);
   const [error, setError] = useState('');
   const [name, setName] = useState('');
+  const [Complaints, setComplaints] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      const token = localStorage.getItem('token');
-
-      if (!token) {
-        setError('No token found. Please log in.');
-        return navigate('/login');
-      }
-
-      try {
-        const res = await fetch('http://localhost:8080/dashboard', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          setMessage(data.message);
-          setUserId(data.User_id);
-          console.log(data.User_id);
-
-          setTimeout(() => {
-            navigate('/dashboard');
-          }, 1000);
-        } else {
-          const data = await res.json();
-          setError(data.error || 'Unauthorized');
-          navigate('/login');
+  const fetchComplaints = async () =>{
+    try{
+      const complaints  = await fetch('http://localhost:8080/fetch-complaints',{
+        method: 'GET',
+        headers: {
+          "Authorization" : `Bearer ${token}`,
         }
-      } catch (err) {
-        setError('Something went wrong');
+      });
+
+      if(complaints.ok){
+        const complaintsData = await complaints.json();
+        setComplaints(complaintsData);
+      }else{
+        const complaintsData = await complaints.json();
+        setError(complaintsData.error)
       }
-    };
+    }catch(error){
+      setError(error)
+    }
+  }
+
+  const fetchDashboard = async () => {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      setError('No token found. Please log in.');
+      return navigate('/login');
+    }
+
+    try {
+      const res = await fetch('http://localhost:8080/dashboard', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setMessage(data.message);
+        setUserId(data.User_id);
+        console.log(data.User_id);
+
+        fetchComplaints();
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Unauthorized');
+        navigate('/login');
+      }
+    } catch (err) {
+      setError('Something went wrong');
+    }
+  };
+
+  useEffect(() => {
+
 
     fetchDashboard();
   }, []);
@@ -62,7 +84,18 @@ function Dashboard() {
         <div className='grid grid-cols-3 min-h-screen gap-3 mx-6'>
           <div className='col-span-2 border-3 rounded-3xl shadow-xl'>
               <div className='text-center text-3xl font-semibold text-[#F7A072]'>Complaint Status</div>
-              <StatusBox title = "subhadip" description="sdfsdfsdf" status="done"/>
+                  <div>
+                  {(
+                    Complaints.map((c) => (
+                      <StatusBox
+                        key={c.ID}
+                        title={c.Title}
+                        description={c.Description}
+                        status={c.Status}
+                      />
+                    ))
+                  )}
+                  </div>
           </div>
           <div className='col-span-1 w-full border-3 rounded-3xl '>
             <div className='text-3xl my-3 text-[#F7A072] font-bold text-center'>Profile</div>
