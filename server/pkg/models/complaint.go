@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"gorm.io/gorm"
+)
 
 type ComplaintStatus string
 
@@ -10,12 +12,11 @@ const (
 )
 
 type Complaint struct {
-	ID          int             `gorm:"primaryKey"`
+	gorm.Model
 	Title       string          `gorm:"not null"`
 	Description string          `gorm:"not null"`
+	Department  string          `gorm:"not null"`
 	Status      ComplaintStatus `gorm:"type:varchar(20);default:'pending';not null"`
 	Anonymous   bool            `gorm:"default:false; not null"`
-	UserID      int             `gorm:"not null"`
-
-	CreatedAt time.Time
+	UserID      uint            `gorm:"not null"`
 }
