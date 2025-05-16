@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import StatusBox from '../components/statusBox';
+import Footer from '../components/Footer'
 
 function Dashboard() {
   const [message, setMessage] = useState('');
@@ -12,6 +13,7 @@ function Dashboard() {
   const navigate = useNavigate();
 
   const fetchComplaints = async () =>{
+    const token = localStorage.getItem("token")
     try{
       const complaints  = await fetch('http://localhost:8080/fetch-complaints',{
         method: 'GET',
@@ -23,6 +25,7 @@ function Dashboard() {
       if(complaints.ok){
         const complaintsData = await complaints.json();
         setComplaints(complaintsData);
+        console.log(complaintsData);
       }else{
         const complaintsData = await complaints.json();
         setError(complaintsData.error)
@@ -81,7 +84,7 @@ function Dashboard() {
         <Navbar />
 
         <div className='text-4xl text-[#F7A072] border-[#cfb961] font-bold font-sans text-center mt-4 border-3 p-2 m-4 rounded-2xl shadow-md'>Dashboard</div>
-        <div className='grid grid-cols-3 min-h-screen gap-3 mx-6'>
+        <div className='grid grid-cols-3 min-h-screen gap-3 mx-6 mb-4'>
           <div className='col-span-2 border-3 rounded-3xl shadow-xl'>
               <div className='text-center text-3xl font-semibold text-[#F7A072]'>Complaint Status</div>
                   <div>
@@ -119,6 +122,7 @@ function Dashboard() {
           </div>
           </div>
         </div>
+        <Footer />
     </div>
   );
 }
