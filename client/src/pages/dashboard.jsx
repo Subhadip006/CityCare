@@ -7,7 +7,7 @@ function Dashboard() {
   const [message, setMessage] = useState('');
   const [userId, setUserId] = useState(null);
   const [error, setError] = useState('');
-  const [name, setName] = useState('Jhon');
+  const [name, setName] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,11 +27,15 @@ function Dashboard() {
           },
         });
 
-        if (res.status === 200) {
+        if (res.ok) {
           const data = await res.json();
           setMessage(data.message);
           setUserId(data.User_id);
           console.log(data.User_id);
+
+          setTimeout(() => {
+            navigate('/dashboard');
+          }, 1000);
         } else {
           const data = await res.json();
           setError(data.error || 'Unauthorized');
@@ -71,7 +75,7 @@ function Dashboard() {
             />
             </div>
 
-            <div className='text-2xl font-semibold text-center'>{name}</div>
+            <div className='text-2xl font-semibold text-center'>{userId}</div>
             <div className="flex justify-center mt-4">
             <button
               onClick={handleUpdateClick}
