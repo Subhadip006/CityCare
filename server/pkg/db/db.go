@@ -23,7 +23,7 @@ func Connect() {
 
 	fmt.Println("connection successful")
 
-	err = connection.AutoMigrate(&models.User{}, &models.Complaint{})
+	err = connection.AutoMigrate(&models.User{}, &models.Complaint{}, &models.Officer{})
 
 	if err != nil {
 		log.Fatal("failed to migrate")
