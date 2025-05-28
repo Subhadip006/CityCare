@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -33,6 +34,10 @@ const Footer = () => {
             </a>
           </li>
         </ul>
+
+      <div className='mt-2 hover:underline'>
+      <Link to="/Office">Officers Login</Link>
+      </div>
       </div>
     </footer>
   );
