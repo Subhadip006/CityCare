@@ -8,6 +8,7 @@ import NotFound from './pages/NotFound.jsx'
 import Register from './pages/Register.jsx'
 import Dashboard from './pages/dashboard.jsx'
 import ComplaintForm from './pages/Complaints.jsx'
+import Officerslogin from './pages/Officerslogin.jsx'
 
 
 const router = createBrowserRouter([
@@ -16,7 +17,8 @@ const router = createBrowserRouter([
   {path: '*', element: <NotFound />},
   {path: '/register', element: <Register />},
   {path: '/dashboard', element: <Dashboard />},
-  {path: '/complaint', element:<ComplaintForm />}
+  {path: '/complaint', element:<ComplaintForm />},
+  {path: 'officelogin', element: <Officerslogin />}
 ])
 createRoot(document.getElementById('root')).render(
   <StrictMode>
