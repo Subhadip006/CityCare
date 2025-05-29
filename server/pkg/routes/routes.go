@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/Subhadip006/CityCare/pkg/handlers"
+	"github.com/Subhadip006/CityCare/pkg/handlers/adminhandlers"
 	"github.com/Subhadip006/CityCare/pkg/handlers/auth"
 	"github.com/Subhadip006/CityCare/pkg/middleware"
 	"github.com/gofiber/fiber/v2"
@@ -12,10 +13,17 @@ func Setup(app *fiber.App) {
 	//public
 	app.Post("/register", auth.Register)
 	app.Post("/login", auth.Login)
+	app.Post("/officerLogin", auth.OfficeLogin)
+	app.Post("/officerRegister", auth.RequestedOfficer)
+
+	//admin
+
+	app.Get("/officerRequest", adminhandlers.GetRequestOfficer)
 
 	protected := app.Group("/", middleware.Protected())
 
 	protected.Get("/dashboard", handlers.DashboardHandler)
 	protected.Post("/complaint", handlers.ComplaintSubmit)
 	protected.Get("/fetch-complaints", handlers.GetComplaints)
+
 }
