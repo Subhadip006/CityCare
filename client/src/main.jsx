@@ -9,6 +9,8 @@ import Register from './pages/Register.jsx'
 import Dashboard from './pages/dashboard.jsx'
 import ComplaintForm from './pages/Complaints.jsx'
 import Officerslogin from './pages/Officerslogin.jsx'
+import Officerrequest from './pages/officerRequest.jsx'
+import AdminDashboard from './pages/adminDasboard.jsx'
 
 
 const router = createBrowserRouter([
@@ -18,7 +20,9 @@ const router = createBrowserRouter([
   {path: '/register', element: <Register />},
   {path: '/dashboard', element: <Dashboard />},
   {path: '/complaint', element:<ComplaintForm />},
-  {path: 'officelogin', element: <Officerslogin />}
+  {path: 'officelogin', element: <Officerslogin />},
+  {path: '/officerRegister', element: <Officerrequest />},
+  {path: '/admin', element: <AdminDashboard />}
 ])
 createRoot(document.getElementById('root')).render(
   <StrictMode>
