@@ -8,7 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func officeLogin(c *fiber.Ctx) error {
+func OfficeLogin(c *fiber.Ctx) error {
 	type req struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
