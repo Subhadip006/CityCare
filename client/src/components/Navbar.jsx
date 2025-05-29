@@ -3,7 +3,13 @@ import LogoutButton from './LogoutButton';
 import LoginButton from './loginButton';
 
 function Navbar() {
-  const isLoggedIn = false; // Replace this with actual authentication logic
+  let isLoggedIn = false; 
+
+  const token = localStorage.getItem("token");
+
+  if(token != null){
+      isLoggedIn = true;
+  }
 
   return (
     <div className='w-full bg-transparent flex justify-between items-center p-4'>
@@ -11,20 +17,14 @@ function Navbar() {
           Citycare
         </div>
         <div>
-            <ul className='hidden md:flex gap-4 pr-20 text-[#13737c] text-xl font-semibold'>
+            <ul className='hidden md:flex items-center gap-4 pr-20 text-[#13737c] text-xl font-semibold'>
                 <li>Home</li>
-                <li>About</li>
                 <li>Services</li>
                 <li>Contact</li>
-                {isLoggedIn ? (
-                  <li>
-                    <LogoutButton />
-                  </li>
-                ) : (
-                  <li>
-                    <LoginButton />
-                  </li>
-                )}
+                <li className="mt-2">
+                       {isLoggedIn ? <LogoutButton /> : <LoginButton />}
+                </li>
+
             </ul>
         </div>
     </div>
