@@ -6,6 +6,7 @@ client/dist/
 server/*.exe
 server/*.out
 server/.env
+server/tmp
 
 # Logs and misc
 *.log
