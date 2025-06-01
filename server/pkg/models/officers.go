@@ -8,4 +8,5 @@ type Officer struct {
 	Email      string `gorm:"unique;not null"`
 	Password   string `gorm:"not null" json:"password,omitempty"`
 	Department string `gorm:"not null"`
+	Role       string `gorm:"not null"`
 }
