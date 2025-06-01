@@ -38,7 +38,7 @@ func OfficeLogin(c *fiber.Ctx) error {
 		})
 	}
 
-	token, err := utils.GenerateToken(officer.ID)
+	token, err := utils.GenerateToken(officer.ID, officer.Role)
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
