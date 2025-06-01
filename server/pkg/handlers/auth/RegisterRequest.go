@@ -34,6 +34,6 @@ func RequestedOfficer(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "user Created",
+		"message": "Registration request sent",
 	})
 }
