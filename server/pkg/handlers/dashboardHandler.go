@@ -8,6 +8,7 @@ import (
 
 func DashboardHandler(c *fiber.Ctx) error {
 	userID := c.Locals("user_id")
+	role := c.Locals("role")
 
 	var user models.User
 	err := db.DB.Where("id = ?", userID).First(&user).Error
@@ -21,5 +22,6 @@ func DashboardHandler(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"message": "Welcome " + user.Username,
 		"User_id": userID,
+		"Role":    role,
 	})
 }
