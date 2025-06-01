@@ -9,22 +9,21 @@ import (
 )
 
 func Protected() fiber.Handler {
-
 	return func(c *fiber.Ctx) error {
 
-		authHead := c.Get(("Authorization"))
+		authHead := c.Get("Authorization")
 
 		if authHead == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "No token",
+				"error": "No token provided",
 			})
 		}
 
 		strParts := strings.Split(authHead, " ")
 
-		if (len(strParts) != 2) || strParts[0] != "Bearer" {
+		if len(strParts) != 2 || strParts[0] != "Bearer" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "Invalid token",
+				"error": "Invalid token format",
 			})
 		}
 
@@ -34,15 +33,36 @@ func Protected() fiber.Handler {
 
 		if err != nil || !token.Valid {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"error": "Expired token",
+				"error": "Invalid or expired token",
 			})
 		}
 
-		claims := token.Claims.(jwt.MapClaims)
-		userID := uint(claims["user_id"].(float64))
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "Invalid claims format",
+			})
+		}
+
+		userIDFloat, ok := claims["user_id"].(float64)
+		if !ok {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "user_id not found in token",
+			})
+		}
+		userID := uint(userIDFloat)
+
+		role, ok := claims["role"].(string)
+		if !ok {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "role not found in token",
+			})
+		}
+
+		// Set context values
 		c.Locals("user_id", userID)
+		c.Locals("role", role)
 
 		return c.Next()
-
 	}
 }
