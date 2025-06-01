@@ -9,13 +9,14 @@ function Dashboard() {
   const [userId, setUserId] = useState(null);
   const [error, setError] = useState('');
   const [name, setName] = useState('');
+  const [Role, setRole] = useState('');
   const [Complaints, setComplaints] = useState([]);
   const navigate = useNavigate();
 
   const fetchComplaints = async () =>{
     const token = localStorage.getItem("token")
     try{
-      const complaints  = await fetch('http://localhost:8080/fetch-complaints',{
+      const complaints  = await fetch('http://localhost:8080/complaints',{
         method: 'GET',
         headers: {
           "Authorization" : `Bearer ${token}`,
@@ -55,7 +56,9 @@ function Dashboard() {
         const data = await res.json();
         setMessage(data.message);
         setUserId(data.User_id);
+        setRole(data.Role);
         console.log(data.User_id);
+        console.log(data.Role);
 
         fetchComplaints();
       } else {
@@ -112,6 +115,7 @@ function Dashboard() {
             </div>
 
             <div className='text-2xl font-semibold text-center'>{userId}</div>
+
             <div className="flex justify-center mt-4">
             <button
               onClick={handleUpdateClick}
