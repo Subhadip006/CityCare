@@ -19,11 +19,16 @@ func Setup(app *fiber.App) {
 	//admin
 
 	app.Get("/officerRequest", adminhandlers.GetRequestOfficer)
+	app.Post("/officerAccept/:id", adminhandlers.AcceptRequest)
+	app.Post("/adminAuth", auth.AdminAuth)
+	app.Post("/officerDeny/:id", adminhandlers.DenyRequest)
 
 	protected := app.Group("/", middleware.Protected())
 
-	protected.Get("/dashboard", handlers.DashboardHandler)
-	protected.Post("/complaint", handlers.ComplaintSubmit)
-	protected.Get("/fetch-complaints", handlers.GetComplaints)
+	userGroup := protected.Group("/", middleware.RoleMiddleware("user"))
+
+	userGroup.Get("/dashboard", handlers.DashboardHandler)
+	userGroup.Get("/complaints", handlers.GetComplaints)
+	userGroup.Post("/complaint", handlers.ComplaintSubmit)
 
 }
