@@ -1,33 +1,45 @@
 import React from 'react'
-import LogoutButton from './LogoutButton';
-import LoginButton from './loginButton';
+import LogoutButton from './LogoutButton'
+import LoginButton from './LoginButton'
+import { useNavigate, Link } from 'react-router-dom'
+import Button from './Button'
 
 function Navbar() {
-  let isLoggedIn = false; 
-
-  const token = localStorage.getItem("token");
-
-  if(token != null){
-      isLoggedIn = true;
-  }
+  const isLoggedIn = !!localStorage.getItem("token");
+  const navigate = useNavigate();
 
   return (
-    <div className='w-full bg-transparent flex justify-between items-center p-4'>
-        <div className='text-5xl font-semibold pl-10 text-[#0FA3B1]'>
-          Citycare
-        </div>
-        <div>
-            <ul className='hidden md:flex items-center gap-4 pr-20 text-[#13737c] text-xl font-semibold'>
-                <li>Home</li>
-                <li>Services</li>
-                <li>Contact</li>
-                <li className="mt-2">
-                       {isLoggedIn ? <LogoutButton /> : <LoginButton />}
-                </li>
+    <nav className="w-full fixed top-0 left-0 py-4 z-50 backdrop-blur-md shadow-sm bg-white flex items-center justify-between mx-auto md:px-96">
+      <div>
+        <Link to = "/" className='text-2xl font-semibold text-text'>CityCare</Link>
+      </div>
 
-            </ul>
+      <div className='flex items-center justify-between space-x-4'>
+        <div className='flex'>
+          <ul className='flex space-x-4'>
+            <li>
+              <Link to="/" className='text-text font-light'>Home</Link>
+            </li>
+            <li>
+              <Link to="/about" className='text-text font-light'>Login</Link>
+            </li>
+          </ul>
         </div>
-    </div>
+
+        <Button
+          text= "Raise Complaint"
+          color="bg-primary"
+          onClick={() => {
+            if (isLoggedIn) {
+              navigate('/complaint');
+            } else {
+              navigate('/login');
+            }
+          }}
+          className="ml-4 rounded-md"
+        />
+      </div>
+    </nav>
   )
 }
 
