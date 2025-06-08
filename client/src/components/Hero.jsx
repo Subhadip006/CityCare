@@ -1,23 +1,82 @@
 import React from 'react'
 import Button from './Button'
+import Card from './Card'
+import {FileText, CheckCircle, MessageSquare} from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 function Hero() {
-
   return (
-    <div className='container mx-auto h-screen flex flex-col gap-y-6 justify-center items-center'>
-        <div className='text-5xl font-stretch-200% font-semibold font-serif'>Citycare</div>
-        <div className='text-2xl font-sans text-[#07474d]'>A public Complaint Management System</div>
-        <div className='flex gap-x-4'>
-            <Link to="/complaint">
-            <Button text='Raise Complaint' color='bg-[#cfb961]' textColor='text-black' hoverColor='bg-[#F7A072]' className='px-6 py-2 cursor-pointer rounded font-semibold transition duration-300' />
-            </Link>
-            <Link to="/dashboard">
-            <Button text='Check Status' color='bg-[#F7A072]' textColor='text-black' hoverColor='bg-[#F7A072]' className='px-6 py-2 rounded cursor-pointer font-semibold transition duration-300' /> 
-            </Link>
-        </div>
+    <div>
+      <div className="flex flex-col justify-center items-center bg-secondaryBackground text-center px-6 pt-44 pb-12">
+      <div className='gap-y-3 flex flex-col pt-4'>
+        <h1 className="text-6xl font-extrabold font-serif text-text drop-shadow-sm">Your Voice Matters.</h1>
+      <h1 className="text-6xl font-extrabold font-serif drop-shadow-sm text-center pb-16">
+           <span className="text-primary mb-">Raise your complaint</span>{' '}
+           <span className="text-text">Be heard.</span>
+      </h1>
+      </div>
+
+      <div className="mt-8 flex gap-4">
+        <Link to="/complaint">
+          <Button
+            text="Raise Complaint"
+            color="bg-primary"
+            textColor="text-white"
+            hoverColor="bg-[#f9a03f]"
+            className="px-6 py-3 rounded-lg font-semibold shadow-md transition"
+          />
+        </Link>
+        <Link to="/dashboard">
+          <button className='bg-transparent border-2 border-secondary px-6 py-3  rounded-lg font-semibold shadow-md  text-secondary hover:bg-secondary hover:text-background transition'>
+            Check Status</button>
+        </Link>
+      </div>
     </div>
+
     
+    <div className='flex flex-col items-center justify-center bg-white text-text px-6 py-16'>
+          <h1 className='text-4xl font-semibold text-text font-sans pb-4'>How It Works</h1>
+          <p className='text-xl text-gray-600 font-sans'>Simple step to make your voice heard and improve your community</p>
+
+          <div className='pt-12 flex flex-row items-center justify-center gap-8'>
+            <Card
+                 icon={<FileText className="w-8 h-8 text-secondary" />}
+                 title="Submit Complaint"
+                 description="Report issues in your community with detailed descriptions and photos."
+          />
+
+          <Card
+                 icon={ <MessageSquare className="w-8 h-8 text-primary" />}
+                 title="Track Progress"
+                 description="Monitor your complaint status and receive updates from officers."
+          />
+
+          <Card
+                 icon={<CheckCircle className="w-8 h-8 text-orange-300" />}
+                 title="See Results"
+                 description="Watch as your community improves through collective action."
+          />
+          </div>
+          
+
+    </div>
+
+    <div className='flex flex-col items-center justify-center bg-primary text-white px-6 py-16'>
+      <h1 className='text-4xl font-semibold text-white font-sans pb-4'>Join the Movement</h1>
+      <p className='text-xl text-white font-sans'>Together, we can make our cities better places to live.</p>
+      <Link to="/register">
+        <Button
+          text="Get Started"
+          color="bg-white"
+          textColor="text-primary"
+          className="px-6 py-3 rounded-lg font-semibold shadow-md transition mt-8 hover:shadow-2xl hover:bg-gray-100 hover:text-primary"
+        />
+      </Link>
+
+    </div>
+
+
+    </div>
   )
 }
 

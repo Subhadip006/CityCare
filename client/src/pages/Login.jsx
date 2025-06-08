@@ -1,93 +1,126 @@
-import React, {useState} from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import LoginImage from '../assets/login.jpg';
 
 function Login() {
-
-  const [email,setemail] = useState('');
-  const [password,setpassword] = useState('');
-  const [error, seterror] = useState('');
-  const [success, setsuccess] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
-
-
-
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    seterror('');
-    setsuccess('');
+    setError('');
+    setSuccess('');
 
     try {
       const res = await fetch('http://localhost:8080/login', {
         method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({
-          email : email,
-          password: password,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
-      if(res.status === 200){
+      if (res.status === 200) {
         localStorage.setItem('token', data.token);
-        setsuccess(data.message);
-        setemail('');
-        setpassword('');
-        setTimeout(() => navigate('/dashboard'), 3000);
-       }else{
-        seterror(data.error);
-       }
-    }catch(err){
-      seterror(data.error)
+        setSuccess(data.message);
+        setEmail('');
+        setPassword('');
+        setTimeout(() => navigate('/dashboard'), 2000);
+      } else {
+        setError(data.error);
+      }
+    } catch (err) {
+      setError('Login failed. Please try again.');
     }
   };
 
-  
-  return (
-    <div className='min-h-screen flex items-center justify-center bg-[#F9F7F3] text-[#cfb961] font-bold font-sans'>
-        <div className='w-[90%] md:w-[50%] lg:w-[30%] bg-white p-8 rounded-lg shadow-lg'>
-            <h1 className='text-3xl text-center font-extrabold mb-4'>Login</h1>
-            {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
-            {success && <div className="text-green-500 mb-4 text-center">{success}</div>}
+  const handleGoogleLogin = () => {
+    window.location.href = 'http://localhost:8080/auth/google';
+  };
 
-            <form onSubmit={handleSubmit}>
-                <div className='mb-4'>
-                    <label htmlFor='email' className='block text-md font-medium mb-2'>Email</label>
-                    <input 
-                    type='email' 
-                    id='email' 
-                    className='w-full border-2 border-gray-300 rounded-md p-2' 
-                    required 
-                    value = {email}
-                    onChange={(e) =>setemail(e.target.value)} 
-                     />
-                </div>
-                <div className='mb-4'>
-                    <label htmlFor='password' className='block text-md font-medium mb-2'>Password</label>
-                    <input 
-                    type='password' 
-                    id='password' 
-                    className='w-full border-2 border-gray-300 rounded-md p-2' 
-                    required
-                    value = {password}
-                    onChange={(e) =>setpassword(e.target.value)}
-                    />
-                </div>
-                <button type='submit' className='w-full bg-[#F7A072] text-white py-2 rounded-md hover:bg-[#63493b]'>Login</button>
-            </form>
-        <div className='mt-4 text-center'>
-            <p className='text-sm'>Don't have an account?
-              <Link to={'/register'} className='text-[#F7A072] pl-1 hover:underline'> Register</Link>
-            </p>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f9f7f3] via-[#F1EFEC] to-[#f9f7f3] px-4">
+      <div className="bg-white w-full max-w-5xl p-10 rounded-2xl shadow-2xl flex flex-col md:flex-row">
+        <div className="md:w-1/2">
+          <div className="text-center mb-6">
+            <span className="bg-primary text-white px-4 py-1 rounded-full text-sm font-semibold">
+              CityCare Login
+            </span>
+            <h1 className="mt-4 text-4xl font-bold text-text">Welcome to CityCare!</h1>
+          </div>
+
+          {error && <div className="text-red-500 text-sm text-center mb-4">{error}</div>}
+          {success && <div className="text-green-600 text-sm text-center mb-4">{success}</div>}
+
+          <form onSubmit={handleSubmit}>
+            <div className="mb-5">
+              <label htmlFor="email" className="block text-sm font-medium text-text">Email Address</label>
+              <input
+                type="email"
+                id="email"
+                className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="mb-5">
+              <label htmlFor="password" className="block text-sm font-medium text-text">Password</label>
+              <input
+                type="password"
+                id="password"
+                className="w-full mt-1 px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="flex justify-between items-center mb-5">
+              <label className="flex items-center text-sm text-text">
+                <input type="checkbox" className="mr-2" /> Remember me
+              </label>
+              <a href="#" className="text-sm text-primary hover:underline">Forgot password?</a>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-primary text-white py-3 rounded-md hover:bg-[#c73f2e] transition font-semibold"
+            >
+              Login
+            </button>
+          </form>
+
+          <div className="text-center my-5 text-gray-500 text-sm">or</div>
+
+          <button
+            onClick={handleGoogleLogin}
+            className="w-full flex items-center justify-center gap-2 border py-3 rounded-md hover:bg-gray-100 transition"
+          >
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5" />
+            <span className="text-sm font-medium text-text">Continue with Google</span>
+          </button>
+
+          <div className="text-center mt-5 text-sm text-text">
+            <span>Don't have an account?</span>
+            <Link to="/register" className="text-primary ml-1 hover:underline font-medium">Create an Account</Link>
+          </div>
         </div>
 
+            <div className="md:w-1/2 mt-10 ml-10 md:mt-0 flex items-center justify-center">
+                   <img
+                      src={LoginImage}
+                      alt="CityCare Illustration"
+                      className="w-full h-full object-cover rounded-xl"
+                     />
+            </div>
+
+      </div>
     </div>
-    </div>
-  )
+  );
 }
 
-export default Login
+export default Login;

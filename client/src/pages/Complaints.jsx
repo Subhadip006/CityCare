@@ -1,163 +1,309 @@
-import React, { useEffect, useState } from 'react'
-import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
-import {useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import Footer from '../components/Footer';
+import Navbar from '../components/Navbar';
+import { AlertCircle, CheckCircle2, Upload, FileText, Building, MessageSquare } from 'lucide-react';
 
 function Complaints() {
-  const [Title, setTitle] = useState('');
-  const [departmnet, setdepartmnet] = useState("");
-  const [description, setdescription] = useState("");
-  const [error, seterror] = useState("");
-  const [success, setsuccess] = useState("")
-  const navigate = useNavigate();
+  const [title, setTitle] = useState('');
+  const [department, setDepartment] = useState('');
+  const [description, setDescription] = useState('');
+  const [media, setMedia] = useState(null);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const formdata = new FormData();
-  formdata.append('Title', Title);
-  formdata.append('Department', departmnet);
-  formdata.append('Description', description);
-
-
-  useEffect(() =>{
-    const token = localStorage.getItem("token")
-
+  // Token validation on component mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
     console.log(token);
 
-    if(!token){
-          seterror("Invalid Token");
-          setTimeout(() => {
-
-            navigate('/login')
-          }, 1000);
-          
+    if (!token) {
+      setError("Invalid Token");
+      setTimeout(() => {
+        // navigate('/login') - uncomment in real app
+        console.log("Redirecting to login...");
+      }, 1000);
     }
-  },[])
-
+  }, []);
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+    setSuccess('');
 
-      e.preventDefault();
-      const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
 
-      try{
-        const response = await fetch('http://localhost:8080/complaint', {
-          method : 'POST',
-          headers : {
-            'Authorization' : `Bearer ${token}`
-          },
+    const formData = new FormData();
+    formData.append('Title', title);
+    formData.append('Department', department);
+    formData.append('Description', description);
+    
+    if (media) {
+      formData.append('media', media);
+    }
 
-          body : formdata,
-        });
+    try {
+      const response = await fetch('http://localhost:8080/complaint', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData,
+      });
 
-        if(response.ok){
-          const data = await response.json();
+      if (response.ok) {
+        const data = await response.json();
+        setSuccess(data.message);
+        
+        setTitle('');
+        setDepartment('');
+        setDescription('');
+        setMedia(null);
 
-          setsuccess(data.message)
-
-          setTimeout(() => {
-            navigate('/dashboard');
-          }, 1000);
-        }else{
-          const data = await response.json();
-          seterror(data.error);
-        }
-
-      }catch(error){
-        seterror(error)
+        setTimeout(() => {
+          console.log("Redirecting to dashboard...");
+        }, 1000);
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Failed to submit complaint');
       }
-  }
+    } catch (error) {
+      console.error('Submission error:', error);
+      setError('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        setError('File size must be less than 10MB');
+        return;
+      }
+      setMedia(file);
+      setError(''); 
+    }
+  };
+
+  const handleInputChange = (setter) => (e) => {
+    setter(e.target.value);
+    if (error) setError(''); 
+  };
 
   return (
-    <>
-    <div className='flex flex-col min-h-screen bg-[#F9F7F3]'>
-      <Navbar />
-      <div className='text-center text-2xl text-[#cfb961] font-bold'>
-        Raise A Complaint
+    <div className="min-h-screen bg-gradient-to-br from-[#f9f7f3] to-[#F1EFEC]">
+      <div className='mb-20'>
+        <Navbar />
+      </div>
+      <div className="bg-white shadow-sm border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          
+          <div className="flex items-center justify-center gap-3">
+            <div className="p-2 bg-primary rounded-lg">
+              <FileText className="w-6 h-6 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-text">Submit Complaint</h1>
+          </div>
+          <p className="text-gray-600 mt-2 text-center">Help us improve by reporting issues in your area</p>
+        </div>
       </div>
 
-      {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
-      {success && <div className="text-green-500 mb-4 text-center">{success}</div>}
-
-      <form onSubmit={handleSubmit} className= "grid grid-cols-3 gap-y-6 w-full px-8 mt-8">
-          <div className='col-span-2 flex flex-col ml-8 gap-y-2'>
-            <label htmlFor="title" className='text-xl font-sans text-[#cfb961] font-semibold '>Title</label>
-            <input 
-            className='border-2 rounded-2xl p-2 text-[#754023] font-mono border-[#cfb961]'
-            placeholder='Enter Title'
-            type="text"
-            value = {Title}
-            onChange={(e) => {
-              setTitle(e.target.value)
-            
-            }}
-            required
-             />
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-r-lg">
+            <div className="flex items-center">
+              <AlertCircle className="w-5 h-5 text-red-400 mr-3" />
+              <p className="text-red-700">{error}</p>
+            </div>
           </div>
-          <div className=' border-2 col-span-1 text-center ml-20 mt-9 rounded-2xl mr-45 text-[#cfb961] pt-1 font-bold text-xl'>
-            <select name="departmnet" id=""
-            value={departmnet}
-            onChange={(e) => {
-              setdepartmnet(e.target.value)
-            }
-            }
-            required
+        )}
+        
+        {success && (
+          <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-400 rounded-r-lg">
+            <div className="flex items-center">
+              <CheckCircle2 className="w-5 h-5 text-green-400 mr-3" />
+              <p className="text-green-700">{success}</p>
+            </div>
+          </div>
+        )}
 
-            className=''
-            >
-              <option className='text-[#cfb961]' value="">Choose Department</option>
-              <option value="Road">Road</option>
-              <option value="sanitation">sanitation</option>
-              <option value="Power">Power</option>
-            </select>
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+          <div className="bg-primary px-8 py-6">
+            <h2 className="text-2xl font-bold text-white">Complaint Details</h2>
+            <p className="text-white/90 mt-1">Please provide detailed information about your complaint</p>
           </div>
 
-          <div className='col-span-3 text-[#cfb961] ml-8 mt-8 text-xl font-medium '>
-            <label htmlFor="description" className='block mb-4'>Description</label>
-            <textarea name="" id=""
-            value={description}
-            onChange={(e) => {
-              setdescription(e.target.value)
-            }}
-            className="resize-none col-span-3 rounded-xl p-2 w-[90%] min-h-[300px] border-2"
-            placeholder='Give a Elaborated Description'
-            required
-            ></textarea>
+          <div className="p-8 space-y-8">
+            <div className="grid md:grid-cols-3 gap-6">
+           
+              <div className="md:col-span-2 space-y-2">
+                <label htmlFor="title" className="flex items-center gap-2 text-lg font-semibold text-text">
+                  <FileText className="w-5 h-5 text-primary" />
+                  Complaint Title *
+                </label>  
+                <input
+                  id="title"
+                  type="text"
+                  value={title}
+                  onChange={handleInputChange(setTitle)}
+                  placeholder="Enter a clear, descriptive title"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none transition-colors text-text bg-white"
+                  required
+                />
+              </div>
 
+              <div className="space-y-2">
+                <label htmlFor="department" className="flex items-center gap-2 text-lg font-semibold text-text">
+                  <Building className="w-5 h-5 text-[#00897B]" />
+                  Department *
+                </label>
+                <div className="relative">
+                  <select
+                    id="department"
+                    value={department}
+                    onChange={handleInputChange(setDepartment)}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#00897B] focus:outline-none transition-colors text-text bg-white appearance-none cursor-pointer"
+                    required
+                  >
+                    <option value="">Select Department</option>
+                    <option value="Road">Road & Infrastructure</option>
+                    <option value="Sanitation">Sanitation & Waste</option>
+                    <option value="Power">Power & Utilities</option>
+                    <option value="Water">Water Supply</option>
+                    <option value="Public Safety">Public Safety</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="description" className="flex items-center gap-2 text-lg font-semibold text-text">
+                <MessageSquare className="w-5 h-5 text-primary" />
+                Detailed Description *
+              </label>
+              <textarea
+                id="description"
+                value={description}
+                onChange={handleInputChange(setDescription)}
+                placeholder="Please provide a detailed description of the issue, including location details, time of occurrence, and any other relevant information..."
+                rows="6"
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none transition-colors text-text bg-white resize-none"
+                required
+              />
+              <p className="text-sm text-gray-500">
+                {description.length}/500 characters ({description.length < 20 ? 'Minimum 20 characters required' : 'Good!'})
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-lg font-semibold text-text">
+                <Upload className="w-5 h-5 text-[#00897B]" />
+                Supporting Media (Optional)
+              </label>
+              <div className="relative">
+                <input
+                  id="media"
+                  type="file"
+                  accept="image/*,video/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <label
+                  htmlFor="media"
+                  className="flex items-center justify-center w-full px-6 py-8 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-[#00897B] hover:bg-gray-50 transition-all group"
+                >
+                  <div className="text-center">
+                    <Upload className="w-10 h-10 mx-auto text-gray-400 group-hover:text-[#00897B] transition-colors" />
+                    <p className="mt-2 text-sm text-gray-600">
+                      <span className="font-semibold text-[#00897B]">Click to upload</span> or drag and drop
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">PNG, JPG, MP4 up to 10MB</p>
+                  </div>
+                </label>
+                {media && (
+                  <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-600" />
+                        <span className="text-sm text-green-700 font-medium">
+                          File selected: {media.name} ({(media.size / (1024 * 1024)).toFixed(2)} MB)
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setMedia(null)}
+                        className="text-red-500 hover:text-red-700 text-sm font-medium"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-center pt-4">
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={isLoading || !title || !department || !description || description.length < 20}
+                className="px-8 py-4 bg-primary text-white font-bold text-lg rounded-2xl hover:shadow-lg transform hover:scale-105 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Submitting Complaint...
+                  </div>
+                ) : (
+                  'Submit Complaint'
+                )}
+              </button>
+            </div>
+
+            {/* Form Status */}
+            <div className="text-center text-sm text-gray-500">
+              <p>* Required fields</p>
+              {(!title || !department || !description || description.length < 20) && (
+                <p className="text-amber-600 mt-1">Please fill all required fields to submit</p>
+              )}
+            </div>
           </div>
+        </div>
 
-          <div className='col-span-3 flex flex-col gap-y-2 ml-8 text-[#cfb961]'>
-                 <label htmlFor="media" className='text-xl font-semibold'>Upload Image/Video (Optional)</label>
-                 <label
-                   htmlFor="media"
-                   className="w-fit cursor-pointer bg-[#F7A072] text-white px-4 py-2 rounded-2xl hover:bg-[#e96d4c] transition"
-                 >
-                   Browse
-                 </label>
-               
-                 <input
-                   id="media"
-                   type="file"
-                   accept="image/*,video/*"
-                   onChange={(e) => setMedia(e.target.files[0])}
-                   className="hidden"
-                 />
-               </div>
-               
-
-          <div className='col-span-3 flex justify-center mt-6 mb-10'>
-             <button type="submit" className='bg-[#F7A072] px-6 py-2 rounded-2xl text-2xl text-white hover:bg-[#e96d4c] transition'>
-                  Submit
-            </button>
-          </div>
-
-
-      </form>
-
+        <div className="mt-8 bg-white rounded-xl p-6 shadow-md border border-gray-100">
+          <h3 className="text-lg font-semibold text-text mb-3">How to write an effective complaint:</h3>
+          <ul className="space-y-2 text-gray-600">
+            <li className="flex items-start gap-2">
+              <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+              <span>Be specific about the location and time of the issue</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+              <span>Include photos or videos if possible to support your complaint</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+              <span>Describe the impact this issue has on you and your community</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+              <span>Use clear and professional language</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <Footer />
     </div>
-      
-    <Footer />
-    </>
-  )
+  );
 }
 
-export default Complaints
+export default Complaints;
