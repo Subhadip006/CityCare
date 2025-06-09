@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import LoginImage from '../assets/login.jpg';
 
@@ -9,6 +9,7 @@ function Login() {
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
+  // Handle normal email/password login
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -29,16 +30,68 @@ function Login() {
         setPassword('');
         setTimeout(() => navigate('/dashboard'), 2000);
       } else {
-        setError(data.error);
+        setError(data.error || 'Login failed');
       }
-    } catch (err) {
+    } catch {
       setError('Login failed. Please try again.');
     }
   };
 
-  const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:8080/auth/google';
+  // Handle Google login callback
+  const handleGoogleCallback = async (response) => {
+    setError('');
+    setSuccess('');
+    try {
+      const id_token = response.credential;
+      const res = await fetch('http://localhost:8080/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: id_token }),
+      });
+
+      const data = await res.json();
+      if (res.status === 200) {
+        localStorage.setItem('token', data.token);
+        setSuccess('Logged in successfully with Google!');
+        setTimeout(() => navigate('/dashboard'), 1500);
+      } else {
+        setError(data.error || 'Google login failed');
+      }
+    } catch {
+      setError('Google login failed. Please try again.');
+    }
   };
+
+  useEffect(() => {
+    // Load Google Identity Services script dynamically
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    script.onload = () => {
+      window.google.accounts.id.initialize({
+        client_id: "802392548098-rojudnh96bvrgm42fpp05k2jm8ugrl90.apps.googleusercontent.com",
+        callback: handleGoogleCallback,
+      });
+
+      window.google.accounts.id.renderButton(
+            document.getElementById('googleSignInDiv'),
+            {
+              theme: 'outline',
+              size: 'large',
+              width: '300',
+              type: 'standard', // 'icon' or 'standard'
+              shape: 'pill',    // 'rectangular' or 'pill'
+            }
+      );
+    };
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f9f7f3] via-[#F1EFEC] to-[#f9f7f3] px-4">
@@ -56,7 +109,9 @@ function Login() {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-5">
-              <label htmlFor="email" className="block text-sm font-medium text-text">Email Address</label>
+              <label htmlFor="email" className="block text-sm font-medium text-text">
+                Email Address
+              </label>
               <input
                 type="email"
                 id="email"
@@ -68,7 +123,9 @@ function Login() {
             </div>
 
             <div className="mb-5">
-              <label htmlFor="password" className="block text-sm font-medium text-text">Password</label>
+              <label htmlFor="password" className="block text-sm font-medium text-text">
+                Password
+              </label>
               <input
                 type="password"
                 id="password"
@@ -83,7 +140,9 @@ function Login() {
               <label className="flex items-center text-sm text-text">
                 <input type="checkbox" className="mr-2" /> Remember me
               </label>
-              <a href="#" className="text-sm text-primary hover:underline">Forgot password?</a>
+              <a href="#" className="text-sm text-primary hover:underline">
+                Forgot password?
+              </a>
             </div>
 
             <button
@@ -96,28 +155,23 @@ function Login() {
 
           <div className="text-center my-5 text-gray-500 text-sm">or</div>
 
-          <button
-            onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center gap-2 border py-3 rounded-md hover:bg-gray-100 transition"
-          >
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5" />
-            <span className="text-sm font-medium text-text">Continue with Google</span>
-          </button>
+          <div id="googleSignInDiv" className="w-full flex justify-center"></div>
 
           <div className="text-center mt-5 text-sm text-text">
             <span>Don't have an account?</span>
-            <Link to="/register" className="text-primary ml-1 hover:underline font-medium">Create an Account</Link>
+            <Link to="/register" className="text-primary ml-1 hover:underline font-medium">
+              Create an Account
+            </Link>
           </div>
         </div>
 
-            <div className="md:w-1/2 mt-10 ml-10 md:mt-0 flex items-center justify-center">
-                   <img
-                      src={LoginImage}
-                      alt="CityCare Illustration"
-                      className="w-full h-full object-cover rounded-xl"
-                     />
-            </div>
-
+        <div className="md:w-1/2 mt-10 ml-10 md:mt-0 flex items-center justify-center">
+          <img
+            src={LoginImage}
+            alt="CityCare Illustration"
+            className="w-full h-full object-cover rounded-xl"
+          />
+        </div>
       </div>
     </div>
   );

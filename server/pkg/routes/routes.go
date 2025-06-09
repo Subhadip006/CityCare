@@ -15,6 +15,7 @@ func Setup(app *fiber.App) {
 	app.Post("/login", auth.Login)
 	app.Post("/officerLogin", auth.OfficeLogin)
 	app.Post("/officerRegister", auth.RequestedOfficer)
+	app.Post("/auth/google", auth.GoogleLogin)
 
 	//admin
 
@@ -23,12 +24,11 @@ func Setup(app *fiber.App) {
 	app.Post("/adminAuth", auth.AdminAuth)
 	app.Post("/officerDeny/:id", adminhandlers.DenyRequest)
 
-	protected := app.Group("/", middleware.Protected())
-
-	userGroup := protected.Group("/", middleware.RoleMiddleware("user"))
+	userGroup := app.Group("/", middleware.Protected()) //middleware.RoleMiddleware("user"))
 
 	userGroup.Get("/dashboard", handlers.DashboardHandler)
 	userGroup.Get("/complaints", handlers.GetComplaints)
 	userGroup.Post("/complaint", handlers.ComplaintSubmit)
+	userGroup.Delete("/complaints/:id", handlers.DeleteComplaint)
 
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import RegisterImage from '../assets/signup.jpg';
 
@@ -30,27 +30,79 @@ function Register() {
       const data = await res.json();
 
       if (res.status === 200) {
+        localStorage.setItem('token', data.token);
         setsuccess(data.message);
         setname('');
         setemail('');
         setpassword('');
-        setTimeout(() => navigate('/login'), 2000);
+        setTimeout(() => navigate('/dashboard'), 2000);
       } else {
         seterror(data.error);
       }
-    } catch (err) {
+    } catch {
       seterror('Registration failed. Please try again.');
     }
   };
 
-  const handleGoogleRegister = () => {
-    window.location.href = 'http://localhost:8080/auth/google';
+  const handleGoogleLogin = async (response) => {
+    seterror('');
+    setsuccess('');
+    try {
+      const id_token = response.credential;
+      const res = await fetch('http://localhost:8080/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: id_token }),
+      });
+
+      const data = await res.json();
+
+      if (res.status === 200) {
+        localStorage.setItem('token', data.token);
+        setsuccess('Logged in successfully with Google!');
+        setTimeout(() => navigate('/dashboard'), 1500);
+      } else {
+        seterror(data.error || 'Google login failed');
+      }
+    } catch {
+      seterror('Google login failed. Please try again.');
+    }
   };
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    script.onload = () => {
+      window.google.accounts.id.initialize({
+        client_id:
+          '802392548098-rojudnh96bvrgm42fpp05k2jm8ugrl90.apps.googleusercontent.com',
+        callback: handleGoogleLogin,
+      });
+
+      window.google.accounts.id.renderButton(
+        document.getElementById('googleSignInDiv'),
+        {
+          theme: 'outline',
+          size: 'large',
+          width: '300',
+          type: 'standard', 
+          shape: 'pill', 
+        }
+      );
+    };
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f9f7f3] via-[#F1EFEC] to-[#f9f7f3] px-4">
       <div className="bg-white w-full max-w-5xl p-10 rounded-2xl shadow-2xl flex flex-col md:flex-row">
-        
         <div className="md:w-1/2">
           <div className="text-center mb-6">
             <span className="bg-primary text-white px-4 py-1 rounded-full text-sm font-semibold">
@@ -59,12 +111,23 @@ function Register() {
             <h1 className="mt-4 text-4xl font-bold text-text">Create Your Account</h1>
           </div>
 
-          {error && <div className="text-red-500 text-sm text-center mb-4">{error}</div>}
-          {success && <div className="text-green-600 text-sm text-center mb-4">{success}</div>}
+          {error && (
+            <div className="text-red-500 text-sm text-center mb-4">{error}</div>
+          )}
+          {success && (
+            <div className="text-green-600 text-md font-normal text-center mb-4">
+              {success}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit}>
             <div className="mb-5">
-              <label htmlFor="name" className="block text-sm font-medium text-text">Name</label>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-text"
+              >
+                Name
+              </label>
               <input
                 type="text"
                 id="name"
@@ -76,7 +139,12 @@ function Register() {
             </div>
 
             <div className="mb-5">
-              <label htmlFor="email" className="block text-sm font-medium text-text">Email Address</label>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-text"
+              >
+                Email Address
+              </label>
               <input
                 type="email"
                 id="email"
@@ -88,7 +156,12 @@ function Register() {
             </div>
 
             <div className="mb-5">
-              <label htmlFor="password" className="block text-sm font-medium text-text">Password</label>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-text"
+              >
+                Password
+              </label>
               <input
                 type="password"
                 id="password"
@@ -109,19 +182,22 @@ function Register() {
 
           <div className="text-center my-5 text-gray-500 text-sm">or</div>
 
-          <button
-            onClick={handleGoogleRegister}
-            className="w-full flex items-center justify-center gap-2 border py-3 rounded-md hover:bg-gray-100 transition"
-          >
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5" />
-            <span className="text-sm font-medium text-text">Continue with Google</span>
-          </button>
+          <div
+            id="googleSignInDiv"
+            className="w-full flex justify-center"
+          ></div>
 
           <div className="text-center mt-5 text-sm text-text">
             <span>Already have an account?</span>
-            <Link to="/login" className="text-primary ml-1 hover:underline font-medium">Login here</Link>
+            <Link
+              to="/login"
+              className="text-primary ml-1 hover:underline font-medium"
+            >
+              Login here
+            </Link>
           </div>
         </div>
+
         <div className="md:w-1/2 mt-10 ml-10 md:mt-0 flex items-center justify-center">
           <img
             src={RegisterImage}
