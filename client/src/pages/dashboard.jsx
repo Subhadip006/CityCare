@@ -1,69 +1,98 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import StatusBox from '../components/statusBox';
-import Footer from '../components/Footer'
+import Footer from '../components/Footer';
+import ConfirmModal from '../components/ConfirmModal';
 
 function Dashboard() {
   const [message, setMessage] = useState('');
   const [userId, setUserId] = useState(null);
   const [error, setError] = useState('');
   const [name, setName] = useState('');
-  const [Role, setRole] = useState('');
-  const [Complaints, setComplaints] = useState([]);
+  const [role, setRole] = useState('');
+  const [complaints, setComplaints] = useState([]);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [toDeleteId, setToDeleteId] = useState(null);
+
+  const [statusCount, setStatusCount] = useState({
+    Total: 0,
+    inProgress: 0,
+    resolved: 0,
+  });
+
   const navigate = useNavigate();
 
-  const fetchComplaints = async () =>{
-    const token = localStorage.getItem("token")
-    try{
-      const complaints  = await fetch('http://localhost:8080/complaints',{
-        method: 'GET',
-        headers: {
-          "Authorization" : `Bearer ${token}`,
-        }
-      });
+  const handleUpdateClick = () => {
+    navigate('/profile/update');
+  };
 
-      if(complaints.ok){
-        const complaintsData = await complaints.json();
-        setComplaints(complaintsData);
-        console.log(complaintsData);
-      }else{
-        const complaintsData = await complaints.json();
-        setError(complaintsData.error)
+  const countStatus = (complaintsList) => {
+    const counts = { Total: 0, inProgress: 0, resolved: 0 };
+    complaintsList.forEach((c) => {
+      if (c.Status === 'pending' || c.Status === 'resolved') counts.Total++;
+      if (c.Status === 'pending') counts.inProgress++;
+      if (c.Status === 'resolved') counts.resolved++;
+    });
+    setStatusCount(counts);
+  };
+
+  const fetchComplaints = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch('http://localhost:8080/complaints', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        console.log(data);
+        setComplaints(data);
+        countStatus(data);
+      } else {
+        const err = await res.json();
+        setError(err.error);
       }
-    }catch(error){
-      setError(error)
+    } catch (err) {
+      setError(err.message);
     }
-  }
+  };
+
+  const handleDeleteComplaint = async (id) => {
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch(`http://localhost:8080/complaints/${id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        fetchComplaints();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchDashboard = async () => {
     const token = localStorage.getItem('token');
-
-    if (!token) {
-      setError('No token found. Please log in.');
-      return navigate('/login');
-    }
+    if (!token) return navigate('/login');
 
     try {
       const res = await fetch('http://localhost:8080/dashboard', {
-        method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-
       if (res.ok) {
         const data = await res.json();
-        setMessage(data.message);
+        setName(data.Name);
+        setMessage(data.Message);
         setUserId(data.User_id);
         setRole(data.Role);
-        console.log(data.User_id);
-        console.log(data.Role);
-
         fetchComplaints();
       } else {
-        const data = await res.json();
-        setError(data.error || 'Unauthorized');
         navigate('/login');
       }
     } catch (err) {
@@ -72,61 +101,118 @@ function Dashboard() {
   };
 
   useEffect(() => {
-
-
     fetchDashboard();
   }, []);
 
-  const handleUpdateClick = () => {
-      navigate('/profile/update')
-  }
-
   return (
-    
-    <div className='min-h-screen w-full bg-[#F9F7F3] text-[#cfb961]'>
-        <Navbar />
+    <div className="min-h-screen  bg-[#faf8f4] text-text">
+      <Navbar />
 
-        <div className='text-4xl text-[#F7A072] border-[#cfb961] font-bold font-sans text-center mt-4 border-3 p-2 m-4 rounded-2xl shadow-md'>Dashboard</div>
-        <div className='grid grid-cols-3 min-h-screen gap-3 mx-6 mb-4'>
-          <div className='col-span-2 border-3 rounded-3xl shadow-xl'>
-              <div className='text-center text-3xl font-semibold text-[#F7A072]'>Complaint Status</div>
-                  <div>
-                  {(
-                    Complaints.map((c) => (
-                      <StatusBox
-                        key={c.ID}
-                        title={c.Title}
-                        description={c.Description}
-                        status={c.Status}
-                      />
-                    ))
-                  )}
-                  </div>
+      <div className="flex-grow max-w-6xl mx-auto p-6 pt-28">
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h1 className="text-3xl font-semibold">Welcome back, {name}!</h1>
+            <p className="text-sm text-gray-500">Here's an overview of your complaints.</p>
           </div>
-          <div className='col-span-1 w-full border-3 rounded-3xl '>
-            <div className='text-3xl my-3 text-[#F7A072] font-bold text-center'>Profile</div>
-            <div className='border-1 mx-6 border-amber-800'></div>
-            <div className="w-40 h-40 rounded-full overflow-hidden border-2 mx-auto my-4 border-gray-300">
-            <img
-                src="https://placehold.co/400"
-                alt="Profile"
-                className="w-full h-full object-cover"
-            />
-            </div>
-
-            <div className='text-2xl font-semibold text-center'>{userId}</div>
-
-            <div className="flex justify-center mt-4">
-            <button
-              onClick={handleUpdateClick}
-              className="bg-[#F7A072] text-white px-6 py-2 rounded-full hover:bg-[#e58e60] transition-all"
-            >
-              Update
-            </button>
-          </div>
-          </div>
+          <button
+            onClick={handleUpdateClick}
+            className="text-primary border border-primary px-4 py-2 rounded-md hover:bg-primary hover:text-white transition"
+          >
+            Edit Profile
+          </button>
         </div>
-        <Footer />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {['Total', 'inProgress', 'resolved'].map((key) => (
+            <div
+              key={key}
+              className="bg-white rounded-xl shadow p-4 flex justify-between items-center"
+            >
+              <div>
+                <p className="text-sm text-gray-500">
+                  {key === 'Total' ? 'Total Complaints' : key === 'inProgress' ? 'In Progress' : 'Resolved'}
+                </p>
+                <p className="text-2xl font-bold">{statusCount[key]}</p>
+              </div>
+              <span
+                className={`px-3 py-1 rounded-full font-semibold ${
+                  key === 'Total'
+                    ? 'bg-orange-200 text-orange-700'
+                    : key === 'inProgress'
+                    ? 'bg-yellow-200 text-yellow-800'
+                    : 'bg-green-200 text-green-800'
+                }`}
+              >
+                {statusCount[key]}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <button
+          className="mb-6 px-6 py-2 rounded-md bg-primary text-white font-medium hover:bg-primary/90"
+          onClick={() => navigate('/complaint')}
+        >
+          Raise New Complaint
+        </button>
+
+        <div className="bg-white rounded-xl shadow p-6 mb-6">
+          <h2 className="text-lg font-semibold mb-4">Your Complaints</h2>
+          {complaints.length === 0 ? (
+            <p className="text-sm text-gray-500">No complaints found.</p>
+          ) : (
+            complaints.map((c, idx) => (
+              <div
+                key={idx}
+                className="border-t py-3 first:border-t-0 flex justify-between items-start"
+              >
+                <div>
+                  <p className="text-sm text-gray-500"> Complaint Code #{c.ID}</p>
+                  <p className="font-semibold">{c.Title}</p>
+                  <p className="text-sm text-gray-500">Department: {c.Department}</p>
+                  <button
+                    onClick={() => {
+                      setToDeleteId(c.ID);
+                      setShowConfirm(true);
+                    }}
+                    className="text-sm font-mono text-red-600 mt-1 hover:underline"
+                  >
+                    Delete
+                  </button>
+                </div>
+                <div className="text-right">
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full font-medium ${
+                      c.Status === 'Open'
+                        ? 'bg-orange-100 text-orange-700'
+                        : c.Status === 'In Progress'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-green-100 text-green-700'
+                    }`}
+                  >
+                    {c.Status}
+                  </span>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {new Date(c.CreatedAt).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <ConfirmModal
+          show={showConfirm}
+          onCancel={() => setShowConfirm(false)}
+          onConfirm={async () => {
+            setShowConfirm(false);
+            await handleDeleteComplaint(toDeleteId);
+            setToDeleteId(null);
+          }}
+        />
+
+      </div>
+      <Footer />
     </div>
   );
 }

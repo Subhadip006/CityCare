@@ -20,7 +20,8 @@ func DashboardHandler(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"message": "Welcome " + user.Username,
+		"Name":    user.Username,
+		"Message": "Welcome " + user.Username,
 		"User_id": userID,
 		"Role":    role,
 	})
