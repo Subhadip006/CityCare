@@ -3,6 +3,7 @@ package auth
 import (
 	"github.com/Subhadip006/CityCare/pkg/db"
 	"github.com/Subhadip006/CityCare/pkg/models"
+	"github.com/Subhadip006/CityCare/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -29,5 +30,16 @@ func Register(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "could not create user"})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "user created"})
+	token, err := utils.GenerateToken(user.ID, user.Role)
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "could not generate token",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "user created",
+		"token":   token,
+	})
 }
