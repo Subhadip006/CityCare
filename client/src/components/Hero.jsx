@@ -23,11 +23,11 @@ function Hero() {
             color="bg-primary"
             textColor="text-white"
             hoverColor="bg-[#f9a03f]"
-            className="px-6 py-3 rounded-lg font-semibold shadow-md transition"
+            className="px-6 py-3 rounded-lg cursor-pointer font-semibold shadow-md transition"
           />
         </Link>
         <Link to="/dashboard">
-          <button className='bg-transparent border-2 border-secondary px-6 py-3  rounded-lg font-semibold shadow-md  text-secondary hover:bg-secondary hover:text-background transition'>
+          <button className='bg-transparent cursor-pointer border-2 border-secondary px-6 py-3  rounded-lg font-semibold shadow-md  text-secondary hover:bg-secondary hover:text-background transition'>
             Check Status</button>
         </Link>
       </div>
@@ -69,7 +69,7 @@ function Hero() {
           text="Get Started"
           color="bg-white"
           textColor="text-primary"
-          className="px-6 py-3 rounded-lg font-semibold shadow-md transition mt-8 hover:shadow-2xl hover:bg-gray-100 hover:text-primary"
+          className="px-6 py-3 rounded-lg cursor-pointer font-semibold shadow-md transition mt-8 hover:shadow-2xl hover:bg-gray-100 hover:text-primary"
         />
       </Link>
 

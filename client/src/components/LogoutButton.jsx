@@ -1,9 +1,18 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
 
 function LogoutButton() {
+
+  const navigate = useNavigate();
+  function handleLogout(){
+    localStorage.removeItem('token');
+    navigate('/');
+  }
   return (
-            <button className='bg-[#f01e2c] py-1 px-4 cursor-pointer rounded-3xl text-gray-100 mb-2'>
-                Log Out
+            <button className='text-primary underline underline-offset-6 decoration-2 cursor-pointer'
+                    onClick={handleLogout}
+            >
+                Log out
             </button>
   )
 }

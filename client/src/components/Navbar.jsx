@@ -1,8 +1,8 @@
 import React from 'react'
-import LogoutButton from './LogoutButton'
-import LoginButton from './LoginButton'
 import { useNavigate, Link } from 'react-router-dom'
 import Button from './Button'
+import LoginButton from './LoginButton';
+import LogoutButton from './LogoutButton';
 
 function Navbar() {
   const isLoggedIn = !!localStorage.getItem("token");
@@ -21,7 +21,7 @@ function Navbar() {
               <Link to="/" className='text-text font-light'>Home</Link>
             </li>
             <li>
-              <Link to="/about" className='text-text font-light'>Login</Link>
+              {isLoggedIn ? <LogoutButton /> : <LoginButton />}
             </li>
           </ul>
         </div>
@@ -36,7 +36,7 @@ function Navbar() {
               navigate('/login');
             }
           }}
-          className="ml-4 rounded-md"
+          className="ml-4 rounded-md cursor-pointer"
         />
       </div>
     </nav>
