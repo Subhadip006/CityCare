@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
+import { useNavigate } from 'react-router-dom';
 import { AlertCircle, CheckCircle2, Upload, FileText, Building, MessageSquare } from 'lucide-react';
 
 function Complaints() {
   const [title, setTitle] = useState('');
   const [department, setDepartment] = useState('');
   const [description, setDescription] = useState('');
-  const [media, setMedia] = useState(null);
+  const [media, setMedia] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  // Token validation on component mount
+  const navigate = useNavigate();
   useEffect(() => {
     const token = localStorage.getItem("token");
     console.log(token);
@@ -20,8 +20,8 @@ function Complaints() {
     if (!token) {
       setError("Invalid Token");
       setTimeout(() => {
-        // navigate('/login') - uncomment in real app
-        console.log("Redirecting to login...");
+        navigate('/login') 
+        
       }, 1000);
     }
   }, []);
@@ -39,9 +39,12 @@ function Complaints() {
     formData.append('Department', department);
     formData.append('Description', description);
     
-    if (media) {
-      formData.append('media', media);
-    }
+    if (media && media.length > 0) {
+      media.forEach((file) => {
+      formData.append('media', file);
+     });
+}
+
 
     try {
       const response = await fetch('http://localhost:8080/complaint', {
@@ -77,16 +80,20 @@ function Complaints() {
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        setError('File size must be less than 10MB');
-        return;
-      }
-      setMedia(file);
-      setError(''); 
+  const files = Array.from(e.target.files);
+  const validFiles = [];
+
+  for (let file of files) {
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Each file must be less than 10MB');
+      return;
     }
-  };
+    validFiles.push(file);
+  }
+
+  setMedia((prevMedia => [...prevMedia, ...validFiles]));
+  setError('');
+};
 
   const handleInputChange = (setter) => (e) => {
     setter(e.target.value);
@@ -214,6 +221,7 @@ function Complaints() {
                   id="media"
                   type="file"
                   accept="image/*,video/*"
+                  multiple
                   onChange={handleFileChange}
                   className="hidden"
                 />
@@ -229,25 +237,35 @@ function Complaints() {
                     <p className="text-xs text-gray-500 mt-1">PNG, JPG, MP4 up to 10MB</p>
                   </div>
                 </label>
-                {media && (
-                  <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        <span className="text-sm text-green-700 font-medium">
-                          File selected: {media.name} ({(media.size / (1024 * 1024)).toFixed(2)} MB)
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setMedia(null)}
-                        className="text-red-500 hover:text-red-700 text-sm font-medium"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                )}
+                {media.length > 0 && (
+                     <div className="mt-3 space-y-2">
+                       {media.map((file, index) => (
+                         <div
+                           key={index}
+                           className="p-3 bg-green-50 rounded-lg border border-green-200 flex items-center justify-between"
+                         >
+                           <div className="flex items-center gap-2">
+                             <CheckCircle2 className="w-4 h-4 text-green-600" />
+                             <span className="text-sm text-green-700 font-medium">
+                               {file.name} ({(file.size / (1024 * 1024)).toFixed(2)} MB)
+                             </span>
+                           </div>
+                           <button
+                             type="button"
+                             onClick={() => {
+                               const newFiles = [...media];
+                               newFiles.splice(index, 1);
+                               setMedia(newFiles);
+                             }}
+                             className="text-red-500 hover:text-red-700 text-sm font-medium"
+                           >
+                             Remove
+                           </button>
+                         </div>
+                       ))}
+                     </div>
+                   )}
+                   
               </div>
             </div>
 
