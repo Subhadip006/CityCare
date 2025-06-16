@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ConfirmModal from '../components/ConfirmModal';
+import VerifiedBadge from '../components/VerifiedBadge';
+import NotVerifiedBadge from '../components/NotVerifiedBadge';
+
 
 function Dashboard() {
   const [message, setMessage] = useState('');
@@ -13,6 +16,7 @@ function Dashboard() {
   const [complaints, setComplaints] = useState([]);
   const [showConfirm, setShowConfirm] = useState(false);
   const [toDeleteId, setToDeleteId] = useState(null);
+  const [Verified, setVerified] = useState(false)
 
   const [statusCount, setStatusCount] = useState({
     Total: 0,
@@ -91,6 +95,7 @@ function Dashboard() {
         setMessage(data.Message);
         setUserId(data.User_id);
         setRole(data.Role);
+        setVerified(data.verified);
         fetchComplaints();
       } else {
         navigate('/login');
@@ -111,7 +116,11 @@ function Dashboard() {
       <div className="flex-grow max-w-6xl mx-auto p-6 pt-28">
         <div className="flex justify-between items-center mb-4">
           <div>
-            <h1 className="text-3xl font-semibold">Welcome back, {name}!</h1>
+            <h1 className="text-3xl font-semibold flex items-center">
+                    Welcome back, {name}
+                    {Verified ? <VerifiedBadge /> : <NotVerifiedBadge />}
+           </h1>
+
             <p className="text-sm text-gray-500">Here's an overview of your complaints.</p>
           </div>
           <button

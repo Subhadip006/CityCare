@@ -23,6 +23,7 @@ func Setup(app *fiber.App) {
 	app.Post("/officerAccept/:id", adminhandlers.AcceptRequest)
 	app.Post("/adminAuth", auth.AdminAuth)
 	app.Post("/officerDeny/:id", adminhandlers.DenyRequest)
+	app.Get("/verify", handlers.VerifyEmail)
 
 	userGroup := app.Group("/", middleware.Protected()) //middleware.RoleMiddleware("user"))
 

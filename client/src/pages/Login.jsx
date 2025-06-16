@@ -9,7 +9,6 @@ function Login() {
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
-  // Handle normal email/password login
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -63,7 +62,6 @@ function Login() {
   };
 
   useEffect(() => {
-    // Load Google Identity Services script dynamically
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
@@ -82,8 +80,8 @@ function Login() {
               theme: 'outline',
               size: 'large',
               width: '300',
-              type: 'standard', // 'icon' or 'standard'
-              shape: 'pill',    // 'rectangular' or 'pill'
+              type: 'standard', 
+              shape: 'pill',   
             }
       );
     };

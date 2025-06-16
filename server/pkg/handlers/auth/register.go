@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"fmt"
+
 	"github.com/Subhadip006/CityCare/pkg/db"
 	"github.com/Subhadip006/CityCare/pkg/models"
 	"github.com/Subhadip006/CityCare/pkg/utils"
@@ -38,8 +40,19 @@ func Register(c *fiber.Ctx) error {
 		})
 	}
 
+	err = utils.SendVerificationMail(user.Email, token)
+
+	if err != nil {
+
+		fmt.Println("Error sending verification email:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "failed to send email",
+		})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "user created",
-		"token":   token,
+		"message":  "user created, verification email sent",
+		"token":    token,
+		"verified": user.IsVerified,
 	})
 }
