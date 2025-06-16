@@ -19,4 +19,7 @@ type Complaint struct {
 	Status      ComplaintStatus `gorm:"type:varchar(20);default:'pending';not null"`
 	Anonymous   bool            `gorm:"default:false; not null"`
 	UserID      uint            `gorm:"not null"`
+	ImageURL    string
+	Latitude    float64
+	Longitude   float64
 }

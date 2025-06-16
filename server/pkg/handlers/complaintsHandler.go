@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/Subhadip006/CityCare/pkg/db"
 	"github.com/Subhadip006/CityCare/pkg/models"
@@ -16,6 +17,26 @@ func ComplaintSubmit(c *fiber.Ctx) error {
 	department := c.FormValue("Department")
 
 	description := c.FormValue("Description")
+
+	longitudeStr := c.FormValue("Longitude")
+
+	latitudeStr := c.FormValue("Latitude")
+
+	latitude, err := strconv.ParseFloat(latitudeStr, 64)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid Latitude value",
+		})
+	}
+
+	longitude, err := strconv.ParseFloat(longitudeStr, 64)
+	fmt.Println("LatitudeStr:", latitudeStr)
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid Longitude value",
+		})
+	}
 
 	if userID == nil {
 		fmt.Println("userID is nil")
@@ -39,11 +60,13 @@ func ComplaintSubmit(c *fiber.Ctx) error {
 	complaint.Title = title
 	complaint.Description = description
 	complaint.Department = department
+	complaint.Latitude = latitude
+	complaint.Longitude = longitude
 
-	err := db.DB.Create(&complaint).Error
+	err = db.DB.Create(&complaint).Error
 
 	if err != nil {
-		c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Map{
+		return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
