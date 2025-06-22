@@ -19,7 +19,7 @@ function Officerslogin() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:8080//officerLogin', {
+      const res = await fetch('http://localhost:8080/officerLogin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -28,12 +28,13 @@ function Officerslogin() {
       const data = await res.json();
 
       if (res.ok) {
+        localStorage.setItem("token", data.token);
         setSuccess('Login successful!');
         setTimeout(() => {
           navigate('/officer/dashboard'); 
         }, 1000);
       } else {
-        setError(data.message || 'Invalid credentials');
+        setError(data.error);
       }
     } catch (err) {
       setError('Server error. Try again later.');

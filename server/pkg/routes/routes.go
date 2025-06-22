@@ -4,6 +4,7 @@ import (
 	"github.com/Subhadip006/CityCare/pkg/handlers"
 	"github.com/Subhadip006/CityCare/pkg/handlers/adminhandlers"
 	"github.com/Subhadip006/CityCare/pkg/handlers/auth"
+	officerhandler "github.com/Subhadip006/CityCare/pkg/handlers/officerHandler"
 	"github.com/Subhadip006/CityCare/pkg/middleware"
 	"github.com/gofiber/fiber/v2"
 )
@@ -24,12 +25,13 @@ func Setup(app *fiber.App) {
 	app.Post("/adminAuth", auth.AdminAuth)
 	app.Post("/officerDeny/:id", adminhandlers.DenyRequest)
 	app.Get("/verify", handlers.VerifyEmail)
-
 	userGroup := app.Group("/", middleware.Protected()) //middleware.RoleMiddleware("user"))
 
 	userGroup.Get("/dashboard", handlers.DashboardHandler)
 	userGroup.Get("/complaints", handlers.GetComplaints)
 	userGroup.Post("/complaint", handlers.ComplaintSubmit)
 	userGroup.Delete("/complaints/:id", handlers.DeleteComplaint)
+	userGroup.Get("/officer/profile", officerhandler.GetOfficerProfile)
+	userGroup.Get("/complaints/department", handlers.GetComplaintsByDepartment)
 
 }

@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom'
 function Hero() {
   return (
     <div>
-      <div className="flex flex-col justify-center items-center bg-secondaryBackground text-center px-6 pt-44 pb-12">
+      <div className="flex flex-col justify-center items-center bg-background text-center px-6 pt-44 pb-12">
       <div className='gap-y-3 flex flex-col pt-4'>
         <h1 className="text-6xl font-extrabold font-serif text-text drop-shadow-sm">Your Voice Matters.</h1>
       <h1 className="text-6xl font-extrabold font-serif drop-shadow-sm text-center pb-16">
