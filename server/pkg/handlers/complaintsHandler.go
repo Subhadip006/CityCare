@@ -99,3 +99,29 @@ func GetComplaints(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(complaints)
 }
+
+func GetComplaintsByDepartment(c *fiber.Ctx) error {
+	userID := c.Locals("user_id")
+
+	uid, ok := userID.(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid user ID",
+		})
+	}
+
+	var officer models.Officer
+	if err := db.DB.Where("user_id = ?", uid).First(&officer).Error; err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Officer profile not found",
+		})
+	}
+	var complaints []models.Complaint
+	if err := db.DB.Where("department = ?", officer.Department).Find(&complaints).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to fetch complaints",
+		})
+	}
+
+	return c.JSON(complaints)
+}
