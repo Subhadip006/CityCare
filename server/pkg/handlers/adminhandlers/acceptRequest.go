@@ -24,7 +24,7 @@ func AcceptRequest(c *fiber.Ctx) error {
 		Email:      reqOfficer.Email,
 		Password:   reqOfficer.Password,
 		Department: reqOfficer.Department,
-		Role:       "Officer",
+		Role:       "officer",
 	}
 
 	if err := db.DB.Create(&officer).Error; err != nil {

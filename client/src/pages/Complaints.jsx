@@ -12,6 +12,7 @@ function Complaints() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [location, setlocation] = useState({lat : '', lng : ''});
   const navigate = useNavigate();
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -24,7 +25,25 @@ function Complaints() {
         
       }, 1000);
     }
+
+    handleGetLocation();
   }, []);
+
+  const handleGetLocation = () => {
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(position => {
+        setlocation({
+          lat : position.coords.latitude,
+          lng : position.coords.longitude,
+        });
+      });
+
+      console.log(location.lat);
+      console.log(location.lng);
+    } else{
+      alert("Geolocation not supported");
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,6 +57,8 @@ function Complaints() {
     formData.append('Title', title);
     formData.append('Department', department);
     formData.append('Description', description);
+    formData.append('Latitude' , location.lat);
+    formData.append('Longitude', location.lng);
     
     if (media && media.length > 0) {
       media.forEach((file) => {
@@ -62,10 +83,11 @@ function Complaints() {
         setTitle('');
         setDepartment('');
         setDescription('');
-        setMedia(null);
+        setMedia([]);
 
         setTimeout(() => {
           console.log("Redirecting to dashboard...");
+          navigate('/dashboard');
         }, 1000);
       } else {
         const data = await response.json();
@@ -176,12 +198,12 @@ function Complaints() {
                     required
                   >
                     <option value="">Select Department</option>
-                    <option value="Road">Road & Infrastructure</option>
-                    <option value="Sanitation">Sanitation & Waste</option>
-                    <option value="Power">Power & Utilities</option>
-                    <option value="Water">Water Supply</option>
-                    <option value="Public Safety">Public Safety</option>
-                    <option value="Other">Other</option>
+                    <option value="road">Road & Infrastructure</option>
+                    <option value="sanitation">Sanitation & Waste</option>
+                    <option value="power">Power & Utilities</option>
+                    <option value="water">Water Supply</option>
+                    <option value="public safety">Public Safety</option>
+                    <option value="other">Other</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                     <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

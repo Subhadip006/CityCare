@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"log"
 	"strings"
 
 	"github.com/Subhadip006/CityCare/pkg/utils"
@@ -62,6 +63,8 @@ func Protected() fiber.Handler {
 		// Set context values
 		c.Locals("user_id", userID)
 		c.Locals("role", role)
+
+		log.Println(role)
 
 		return c.Next()
 	}
