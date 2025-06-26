@@ -198,12 +198,12 @@ function Complaints() {
                     required
                   >
                     <option value="">Select Department</option>
-                    <option value="Road">Road & Infrastructure</option>
-                    <option value="Sanitation">Sanitation & Waste</option>
-                    <option value="Power">Power & Utilities</option>
-                    <option value="Water">Water Supply</option>
-                    <option value="Public Safety">Public Safety</option>
-                    <option value="Other">Other</option>
+                    <option value="road">Road & Infrastructure</option>
+                    <option value="sanitation">Sanitation & Waste</option>
+                    <option value="power">Power & Utilities</option>
+                    <option value="water">Water Supply</option>
+                    <option value="public safety">Public Safety</option>
+                    <option value="other">Other</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                     <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

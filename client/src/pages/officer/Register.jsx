@@ -23,7 +23,7 @@ function OfficerRegister() {
       const res = await fetch('http://localhost:8080/officerRegister', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, role : "officer" }),
       });
 
       const data = await res.json();

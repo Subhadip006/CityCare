@@ -4,46 +4,39 @@ import ComplaintList from '../../components/ComplaintList';
 import ComplaintDetail from '../../components/ComplaintDetails';
 
 const OfficerDashboard = () => {
-  const [officer, setOfficer] = useState({ name: '', department: '' });
+  const [officer, setOfficer] = useState({ id: '', name: '', department: '' });
   const [complaints, setComplaints] = useState([]);
-  const [filteredComplaints, setFilteredComplaints] = useState([]);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [error, setError] = useState('');
 
-  const fetchAllComplaints = async (token, department) => {
-  try {
-    const res = await fetch('http://localhost:8080/complaints/department', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  const token = localStorage.getItem('token');
 
-    if (res.ok) {
+  const fetchComplaintsByDepartment = async (officerId) => {
+    try {
+      const res = await fetch(`http://localhost:8080/complaints/department/${officerId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       const data = await res.json();
-      console.log("Fetched complaints:", data);
-      console.log("Officer dept:", department);
 
-      const filtered = data.filter(
-        (c) =>
-          c.Department?.toLowerCase().trim() ===
-          department?.toLowerCase().trim()
-      );
-
-      console.log("Filtered complaints:", filtered);
-      setComplaints(data);
-      setFilteredComplaints(filtered);
-    } else {
-      const err = await res.json();
-      setError(err.error || 'Failed to fetch complaints');
+      if (res.ok) {
+        setComplaints(data);
+      } else {
+        setError(data.error || 'Failed to fetch complaints');
+      }
+    } catch (err) {
+      console.error('Error fetching complaints by department:', err);
+      setError('An error occurred while fetching complaints.');
     }
-  } catch (err) {
-    setError(err.message);
-  }
-};
+  };
 
   const fetchOfficerProfile = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!token) {
+      setError('Missing auth token');
+      return;
+    }
 
     try {
       const res = await fetch('http://localhost:8080/officer/profile', {
@@ -52,16 +45,17 @@ const OfficerDashboard = () => {
         },
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        const data = await res.json();
-        setOfficer({ name: data.name, department: data.department });
-        fetchAllComplaints(token, data.department);
+        setOfficer({ id: data.id, name: data.name, department: data.department });
+        fetchComplaintsByDepartment(data.id);
       } else {
-        const err = await res.json();
-        setError(err.error || 'Failed to fetch officer profile');
+        setError(data.error || 'Failed to fetch officer profile');
       }
     } catch (err) {
-      setError(err.message);
+      console.error('Error fetching officer profile:', err);
+      setError('An error occurred while fetching officer profile.');
     }
   };
 
@@ -91,8 +85,8 @@ const OfficerDashboard = () => {
           />
         ) : (
           <ComplaintList
-            complaints={filteredComplaints}
-            onSelect={handleComplaintClick}
+            complaints={complaints}
+            onComplaintClick={handleComplaintClick}
           />
         )}
       </div>

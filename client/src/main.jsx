@@ -13,6 +13,7 @@ import Officerrequest from './pages/officer/Register.jsx'
 import AdminDashboard from './pages/adminDasboard.jsx'
 import OfficerDashboard from './pages/officer/OfficerDashboard.jsx'
 import {GoogleOAuthProvider} from '@react-oauth/google'
+import OfficerOnboarding from './pages/officer/onboarding.jsx'
 
 
 const router = createBrowserRouter([
@@ -25,10 +26,9 @@ const router = createBrowserRouter([
   {path: 'officer/login', element: <Officerslogin />},
   {path: 'officer/register', element: <Officerrequest />},
   {path: '/admin', element: <AdminDashboard />},
-  {path: '/officer/dashboard', element: <OfficerDashboard />}
+  {path: '/officer/dashboard', element: <OfficerDashboard />},
+  {path: '/officer/onboard', element: <OfficerOnboarding />}
 ])
-
-const clientId = import.meta.env.GOOGLE_CLIENT_ID;
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

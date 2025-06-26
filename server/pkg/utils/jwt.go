@@ -8,11 +8,10 @@ import (
 )
 
 func GenerateToken(userID uint, role string) (string, error) {
-
 	claims := jwt.MapClaims{
 		"user_id": userID,
 		"role":    role,
-		"exp":     jwt.NewNumericDate(time.Now().Add(time.Hour * 72)).Unix(),
+		"exp":     time.Now().Add(time.Hour * 72).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

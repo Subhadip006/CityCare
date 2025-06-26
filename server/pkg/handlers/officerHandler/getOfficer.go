@@ -7,17 +7,17 @@ import (
 )
 
 func GetOfficerProfile(c *fiber.Ctx) error {
-	userID := uint(c.Locals("user_id").(uint))
-	role := c.Locals("role")
+	userID := c.Locals("user_id")
 
-	if role != "officer" {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "Unauthorized access",
+	id, ok := userID.(uint)
+	if !ok {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid user ID in token",
 		})
 	}
 
 	var officer models.Officer
-	if err := db.DB.First(&officer, userID).Error; err != nil {
+	if err := db.DB.First(&officer, id).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "Officer not found",
 		})

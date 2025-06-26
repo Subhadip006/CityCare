@@ -6,4 +6,4 @@ function adminDasboard() {
   )
 }
 
-export default adminDasboard
+export default adminDasboard;
