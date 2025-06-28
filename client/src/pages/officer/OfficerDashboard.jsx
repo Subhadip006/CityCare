@@ -81,7 +81,7 @@ const OfficerDashboard = () => {
         {selectedComplaint ? (
           <ComplaintDetail
             complaint={selectedComplaint}
-            onBack={() => setSelectedComplaint(null)}
+            onClose={() => setSelectedComplaint(null)}
           />
         ) : (
           <ComplaintList
