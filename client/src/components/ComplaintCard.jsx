@@ -1,5 +1,3 @@
-// src/components/ComplaintCard.jsx
-import React from 'react';
 import { BadgeCheck, Clock } from 'lucide-react';
 
 const ComplaintCard = ({ complaint, onClick }) => {

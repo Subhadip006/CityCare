@@ -9,6 +9,7 @@ const OfficerOnboarding = () => {
   });
 
   const [idImage, setIdImage] = useState(null);
+  const token = localStorage.getItem("token");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,7 +20,10 @@ const OfficerOnboarding = () => {
   };
 
   const handleImageChange = (e) => {
-    setIdImage(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      setIdImage(file);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -35,6 +39,9 @@ const OfficerOnboarding = () => {
     try {
       const res = await fetch("http://localhost:8080/officer/onboard/", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: form,
       });
 
@@ -52,9 +59,8 @@ const OfficerOnboarding = () => {
       });
       setIdImage(null);
 
-      localStorage.setItem("officerId", data.user_id); 
-      window.location.href = "/officer/dashboard"; 
-
+      localStorage.setItem("officerId", data.user_id);
+      window.location.href = "/officer/dashboard";
     } catch (error) {
       console.error("Error:", error.message);
       alert("Error submitting data: " + error.message);
@@ -68,7 +74,7 @@ const OfficerOnboarding = () => {
           Officer Onboarding
         </h2>
         <form onSubmit={handleSubmit} className="space-y-5">
-          {["Choose a Username", "department", "phone", "sector"].map((field) => (
+          {["username", "department", "phone", "sector"].map((field) => (
             <div key={field}>
               <label className="block text-sm font-semibold text-text mb-1 capitalize">
                 {field === "phone" ? "Phone Number" : field}
@@ -100,8 +106,6 @@ const OfficerOnboarding = () => {
               )}
             </div>
           ))}
-
-          {/* ID Image */}
           <div>
             <label className="block text-sm font-semibold text-text mb-1">
               Upload ID Image
@@ -112,8 +116,17 @@ const OfficerOnboarding = () => {
               accept="image/*"
               onChange={handleImageChange}
               className="w-full px-3 py-2 bg-white border border-secondary rounded-md"
-              required
             />
+            {idImage && (
+              <div className="mt-3">
+                <label className="block text-sm font-medium text-text mb-1">Preview:</label>
+                <img
+                  src={URL.createObjectURL(idImage)}
+                  alt="ID Preview"
+                  className="max-h-40 rounded-md border border-gray-300"
+                />
+              </div>
+            )}
           </div>
 
           {/* Submit */}

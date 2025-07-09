@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"fmt"
+
 	"github.com/Subhadip006/CityCare/pkg/db"
 	"github.com/Subhadip006/CityCare/pkg/models"
 	"github.com/Subhadip006/CityCare/pkg/utils"
@@ -12,6 +14,8 @@ func AdminAuth(c *fiber.Ctx) error {
 	var body models.Admin
 
 	err := c.BodyParser(&body)
+
+	fmt.Print("yes i ran")
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

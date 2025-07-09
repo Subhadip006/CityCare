@@ -6,6 +6,7 @@ import (
 
 	"github.com/Subhadip006/CityCare/pkg/db"
 	"github.com/Subhadip006/CityCare/pkg/models"
+	"github.com/Subhadip006/CityCare/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -39,6 +40,21 @@ func ComplaintSubmit(c *fiber.Ctx) error {
 		})
 	}
 
+	var imageURL string
+
+	// Upload first media file (if any)
+	form, err := c.MultipartForm()
+	if err == nil && form.File != nil && len(form.File["media"]) > 0 {
+		file := form.File["media"][0] // Take only the first file
+		imageURL, err = utils.UploadToCloudinary(file)
+		if err != nil {
+			log.Println("Cloudinary upload error:", err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to upload media",
+			})
+		}
+	}
+
 	complaint := models.Complaint{
 		UserID:      user,
 		Title:       title,
@@ -46,6 +62,7 @@ func ComplaintSubmit(c *fiber.Ctx) error {
 		Department:  department,
 		Latitude:    latitude,
 		Longitude:   longitude,
+		ImageURL:    imageURL,
 	}
 
 	if err := db.DB.Create(&complaint).Error; err != nil {
@@ -99,6 +116,19 @@ func GetComplaintsByDepartment(c *fiber.Ctx) error {
 	}
 
 	log.Printf("Fetched %d complaints for department: %s", len(complaints), officer.Department)
+
+	return c.Status(fiber.StatusOK).JSON(complaints)
+}
+
+func GetAllComplaints(c *fiber.Ctx) error {
+	var complaints []models.Complaint
+	if err := db.DB.Find(&complaints).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to fetch complaints",
+		})
+	}
+
+	log.Printf("Fetched %d complaints", len(complaints))
 
 	return c.Status(fiber.StatusOK).JSON(complaints)
 }

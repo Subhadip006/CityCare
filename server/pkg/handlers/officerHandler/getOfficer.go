@@ -19,7 +19,7 @@ func GetOfficerProfile(c *fiber.Ctx) error {
 	var officer models.Officer
 	if err := db.DB.First(&officer, id).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "Officer not found",
+			"error": "Officer not found or request not accepted",
 		})
 	}
 

@@ -7,15 +7,16 @@ import (
 )
 
 func OnboardingHandler(c *fiber.Ctx) error {
-	user_id := c.Params("id")
-	if user_id == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "User ID is required",
+	// Extract user_id as uint from locals
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid user ID in token",
 		})
 	}
 
 	var officer models.RequestedOfficer
-	if err := db.DB.Where("user_id = ?", user_id).First(&officer).Error; err != nil {
+	if err := db.DB.Where("id = ?", userID).First(&officer).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"error": "Officer not found",
 		})
@@ -27,6 +28,7 @@ func OnboardingHandler(c *fiber.Ctx) error {
 		})
 	}
 
+	// Extract form data
 	name := c.FormValue("username")
 	department := c.FormValue("department")
 	phone := c.FormValue("phone")
@@ -37,6 +39,18 @@ func OnboardingHandler(c *fiber.Ctx) error {
 			"error": "All fields are required",
 		})
 	}
+
+	file, err := c.FormFile("id_image")
+	if err == nil {
+		savePath := "./uploads/id_images/" + file.Filename
+		if err := c.SaveFile(file, savePath); err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to save ID image",
+			})
+		}
+
+	}
+
 	officer.Username = name
 	officer.Department = department
 	officer.Phone = phone

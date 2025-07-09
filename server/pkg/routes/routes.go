@@ -18,6 +18,9 @@ func Setup(app *fiber.App) {
 	app.Post("/auth/google", auth.GoogleLogin)
 	app.Get("/verify", handlers.VerifyEmail)
 
+	app.Post("admin/auth", auth.AdminAuth)
+	app.Get("/complaints/all", handlers.GetAllComplaints)
+
 	// === Protected User Routes ===
 	userGroup := app.Group("/", middleware.Protected())
 
@@ -28,8 +31,8 @@ func Setup(app *fiber.App) {
 	userGroup.Get("/complaints/department/:id", handlers.GetComplaintsByDepartment)
 
 	// === Officer Routes ===
-	officerGroup := userGroup.Group("/officer", middleware.RoleMiddleware("Officer"))
-	officerGroup.Post("/:id", officerhandler.OnboardingHandler)
+	officerGroup := userGroup.Group("/officer", middleware.RoleMiddleware("officer"))
+	officerGroup.Post("/onboard", officerhandler.OnboardingHandler)
 	officerGroup.Get("/profile", officerhandler.GetOfficerProfile)
 
 	// === Admin Routes ===
@@ -37,5 +40,4 @@ func Setup(app *fiber.App) {
 	adminGroup.Get("/officerRequest", adminhandlers.GetRequestOfficer)
 	adminGroup.Post("/officerAccept/:id", adminhandlers.AcceptRequest)
 	adminGroup.Post("/officerDeny/:id", adminhandlers.DenyRequest)
-	adminGroup.Post("/auth", auth.AdminAuth)
 }
