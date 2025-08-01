@@ -5,6 +5,8 @@ import Hero from './components/Hero'
 import Footer from './components/Footer'
 
 function App() {
+
+  console.log(import.meta.env.VITE_API_BASE_URL)
   return (
     <>
       <div className="min-h-screen bg-white flex flex-col">

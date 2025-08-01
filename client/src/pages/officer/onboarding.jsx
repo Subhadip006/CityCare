@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const OfficerOnboarding = () => {
   const [formData, setFormData] = useState({
@@ -8,8 +8,8 @@ const OfficerOnboarding = () => {
     sector: "",
   });
 
-
   const [idImage, setIdImage] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const token = localStorage.getItem("token");
 
   const handleChange = (e) => {
@@ -24,10 +24,21 @@ const OfficerOnboarding = () => {
     const file = e.target.files[0];
     if (file) {
       setIdImage(file);
+      // Create object URL for preview
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/';
+  // Cleanup the object URL when component unmounts or previewUrl changes
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,6 +72,7 @@ const OfficerOnboarding = () => {
         sector: "",
       });
       setIdImage(null);
+      setPreviewUrl(null);
 
       localStorage.setItem("officerId", data.user_id);
       window.location.href = "/officer/dashboard";
@@ -70,7 +82,7 @@ const OfficerOnboarding = () => {
     }
   };
 
-  return (  
+  return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-lg p-8 bg-secondaryBackground shadow-2xl rounded-3xl">
         <h2 className="text-3xl font-extrabold mb-8 text-center text-text">
@@ -120,11 +132,13 @@ const OfficerOnboarding = () => {
               onChange={handleImageChange}
               className="w-full px-3 py-2 bg-white border border-secondary rounded-md"
             />
-            {idImage && (
+            {previewUrl && (
               <div className="mt-3">
-                <label className="block text-sm font-medium text-text mb-1">Preview:</label>
+                <label className="block text-sm font-medium text-text mb-1">
+                  Preview:
+                </label>
                 <img
-                  src={URL.createObjectURL(idImage)}
+                  src={previewUrl}
                   alt="ID Preview"
                   className="max-h-40 rounded-md border border-gray-300"
                 />
