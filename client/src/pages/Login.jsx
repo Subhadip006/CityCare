@@ -9,13 +9,15 @@ function Login() {
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/';
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
     try {
-      const res = await fetch('http://localhost:8080/login', {
+      const res = await fetch(`${BASE_URL}login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -36,13 +38,12 @@ function Login() {
     }
   };
 
-  // Handle Google login callback
   const handleGoogleCallback = async (response) => {
     setError('');
     setSuccess('');
     try {
       const id_token = response.credential;
-      const res = await fetch('http://localhost:8080/auth/google', {
+      const res = await fetch(`${BASE_URL}auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: id_token }),

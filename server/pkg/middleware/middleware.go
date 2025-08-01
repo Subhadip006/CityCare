@@ -60,7 +60,6 @@ func Protected() fiber.Handler {
 			})
 		}
 
-		// Set context values
 		c.Locals("user_id", userID)
 		c.Locals("role", role)
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/Subhadip006/CityCare/config"
 	"github.com/Subhadip006/CityCare/pkg/db"
@@ -15,12 +16,19 @@ func main() {
 	config.LoadEnv()
 
 	db.Connect()
-	fmt.Println("Hello, World!")
 
 	app := fiber.New()
 
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Welcome to CityCare API")
+	})
+
+	app.Get("/health", func(c *fiber.Ctx) error {
+		return c.SendString("ok")
+	})
+
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:5173",
+		AllowOrigins:     "http://localhost:3000,http://frontend:3000",
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
 		AllowCredentials: true,
@@ -28,7 +36,8 @@ func main() {
 
 	routes.Setup(app)
 
-	app.Listen(":8080")
+	fmt.Println("server is starting")
 
-	fmt.Println("server is started")
+	log.Fatal(app.Listen(":8080"))
+
 }

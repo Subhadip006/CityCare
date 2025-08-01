@@ -12,4 +12,5 @@ type RequestedOfficer struct {
 	Phone      string `json:"Phone"`
 	Sector     string `json:"Sector"`
 	Onboarded  bool   `gorm:"default:false"`
+	ImageURL   string `json:"ImageURL,omitempty"`
 }

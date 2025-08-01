@@ -8,21 +8,20 @@ const OfficerDashboard = () => {
   const [complaints, setComplaints] = useState([]);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [error, setError] = useState('');
-
+  const [loading, setLoading] = useState(false);
   const token = localStorage.getItem('token');
 
   const fetchComplaintsByDepartment = async (officerId) => {
     try {
-      const res = await fetch(`http://localhost:8080/complaints/department/${officerId}`, {
+      const res = await fetch(`http://localhost:8000/complaints/department/${officerId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
       const data = await res.json();
-
       if (res.ok) {
         setComplaints(data);
+        console.log('Fetched complaints:', data);
       } else {
         setError(data.error || 'Failed to fetch complaints');
       }
@@ -39,14 +38,12 @@ const OfficerDashboard = () => {
     }
 
     try {
-      const res = await fetch('http://localhost:8080/officer/profile', {
+      const res = await fetch('http://localhost:8000/officer/profile', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
       const data = await res.json();
-
       if (res.ok) {
         setOfficer({ id: data.id, name: data.name, department: data.department });
         fetchComplaintsByDepartment(data.id);
@@ -59,6 +56,56 @@ const OfficerDashboard = () => {
     }
   };
 
+  const handleSolveComplaint = async (complaintId) => {
+    if (!token) {
+      setError('Authentication required');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch(`http://localhost:8000/officer/solve/${complaintId}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setComplaints(prevComplaints => 
+          prevComplaints.map(complaint => 
+            complaint.ID === complaintId 
+              ? { ...complaint, Status: 'Solved' }
+              : complaint
+          )
+        );
+
+        
+        if (selectedComplaint && selectedComplaint.ID === complaintId) {
+          setSelectedComplaint(prev => ({ ...prev, Status: 'Solved' }));
+        }
+
+        console.log('Complaint solved successfully:', data);
+        
+        
+        alert('Complaint marked as solved successfully!');
+        
+      } else {
+        setError(data.error || 'Failed to solve complaint');
+      }
+    } catch (err) {
+      console.error('Error solving complaint:', err);
+      setError('An error occurred while solving the complaint.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchOfficerProfile();
   }, []);
@@ -68,13 +115,23 @@ const OfficerDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f9f7f3] to-[#F1EFEC]">
+    <div className="min-h-screen bg-gradient-to-br from-[#f9f7f3] to-[#F1EFEC] text-gray-800">
       <OfficerHeader name={officer.name} department={officer.department} />
-
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-6 py-10">
         {error && (
-          <div className="bg-red-100 text-red-800 p-4 rounded mb-4">
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 shadow-sm">
             {error}
+            <button 
+              onClick={() => setError('')}
+              className="ml-2 text-red-500 hover:text-red-700 font-medium"
+            >
+            </button>
+          </div>
+        )}
+        
+        {loading && (
+          <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700 shadow-sm">
+            Processing request...
           </div>
         )}
 
@@ -82,6 +139,8 @@ const OfficerDashboard = () => {
           <ComplaintDetail
             complaint={selectedComplaint}
             onClose={() => setSelectedComplaint(null)}
+            onSolve={handleSolveComplaint}
+            loading={loading}
           />
         ) : (
           <ComplaintList
@@ -89,7 +148,7 @@ const OfficerDashboard = () => {
             onComplaintClick={handleComplaintClick}
           />
         )}
-      </div>
+      </main>
     </div>
   );
 };

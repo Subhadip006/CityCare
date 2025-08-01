@@ -8,6 +8,7 @@ const OfficerOnboarding = () => {
     sector: "",
   });
 
+
   const [idImage, setIdImage] = useState(null);
   const token = localStorage.getItem("token");
 
@@ -26,6 +27,8 @@ const OfficerOnboarding = () => {
     }
   };
 
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/';
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -37,7 +40,7 @@ const OfficerOnboarding = () => {
     if (idImage) form.append("id_image", idImage);
 
     try {
-      const res = await fetch("http://localhost:8080/officer/onboard/", {
+      const res = await fetch(`${BASE_URL}officer/onboard/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -67,7 +70,7 @@ const OfficerOnboarding = () => {
     }
   };
 
-  return (
+  return (  
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-lg p-8 bg-secondaryBackground shadow-2xl rounded-3xl">
         <h2 className="text-3xl font-extrabold mb-8 text-center text-text">
@@ -89,9 +92,9 @@ const OfficerOnboarding = () => {
                 >
                   <option value="">Select Department</option>
                   <option value="Sanitation">Sanitation</option>
-                  <option value="Roads">Roads</option>
-                  <option value="Electricity">Electricity</option>
-                  <option value="Water Supply">Water Supply</option>
+                  <option value="Road">Road</option>
+                  <option value="Power">Power</option>
+                  <option value="Water">Water Supply</option>
                 </select>
               ) : (
                 <input
@@ -129,7 +132,6 @@ const OfficerOnboarding = () => {
             )}
           </div>
 
-          {/* Submit */}
           <div>
             <button
               type="submit"

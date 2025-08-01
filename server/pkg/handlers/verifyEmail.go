@@ -52,5 +52,5 @@ func VerifyEmail(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to update user"})
 	}
 
-	return c.Redirect("http://localhost:5173/dashboard", fiber.StatusSeeOther)
+	return c.Redirect("http://localhost:3000/dashboard", fiber.StatusSeeOther)
 }

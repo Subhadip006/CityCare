@@ -16,7 +16,7 @@ function Register() {
     setsuccess('');
 
     try {
-      const res = await fetch('http://localhost:8080/register', {
+      const res = await fetch('http://localhost:8000/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -49,7 +49,7 @@ function Register() {
     setsuccess('');
     try {
       const id_token = response.credential;
-      const res = await fetch('http://localhost:8080/auth/google', {
+      const res = await fetch('http://localhost:8000/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: id_token }),

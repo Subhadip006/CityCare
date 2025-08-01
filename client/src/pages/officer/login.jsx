@@ -10,6 +10,8 @@ function Officerslogin() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/';
+
   const isDisabled = password.length < 6 || loading;
 
   const handleSubmit = async (e) => {
@@ -19,7 +21,7 @@ function Officerslogin() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:8080/officerLogin', {
+      const res = await fetch(`${BASE_URL}officerLogin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -36,7 +38,7 @@ function Officerslogin() {
       } else {
         setError(data.error);
       }
-    } catch (err) {
+    } catch {
       setError('Server error. Try again later.');
     } finally {
       setLoading(false);

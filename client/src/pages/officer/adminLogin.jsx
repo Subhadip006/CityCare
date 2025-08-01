@@ -12,7 +12,7 @@ function AdminLogin() {
     setError('');
 
     try {
-      const res = await fetch('http://localhost:8080/admin/auth', {
+      const res = await fetch('http://localhost:8000/admin/auth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

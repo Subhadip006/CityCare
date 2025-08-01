@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
 function AdminDashboard() {
-  const [complaints, setComplaints] = useState([]);
   const [officerRequests, setOfficerRequests] = useState([]);
   const [stats, setStats] = useState({ total: 0, resolved: 0, pending: 0 });
   const [loading, setLoading] = useState(true);
@@ -9,13 +8,15 @@ function AdminDashboard() {
 
   const token = localStorage.getItem('token');
 
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/';
+
   const fetchData = async () => {
     try {
       const [complaintsRes, officerRes] = await Promise.all([
-        fetch('http://localhost:8080/complaints/all', {
+        fetch(`${BASE_URL}complaints/all`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch('http://localhost:8080/admin/officerRequest', {
+        fetch(`${BASE_URL}admin/officerRequest`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
@@ -27,10 +28,11 @@ function AdminDashboard() {
       const complaintsData = await complaintsRes.json();
       const officerData = await officerRes.json();
 
-      setComplaints(complaintsData);
       setOfficerRequests(officerData);
 
-      const resolved = complaintsData.filter(c => c.status === 'Resolved').length;
+      console.log(complaintsData)
+
+      const resolved = complaintsData.filter(c => c.Status === 'Solved').length;
       const pending = complaintsData.length - resolved;
 
       setStats({
@@ -51,7 +53,7 @@ function AdminDashboard() {
 
   const handleAccept = async (id) => {
     try {
-      const res = await fetch(`http://localhost:8080/admin/officerAccept/${id}`, {
+      const res = await fetch(`http://localhost:8000/admin/officerAccept/${id}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -64,7 +66,7 @@ function AdminDashboard() {
 
   const handleDeny = async (id) => {
     try {
-      const res = await fetch(`http://localhost:8080/admin/officerDeny/${id}`, {
+      const res = await fetch(`http://localhost:8000/admin/officerDeny/${id}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -98,38 +100,50 @@ function AdminDashboard() {
       </div>
 
       <div className="bg-white rounded-xl shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">Officer Requests</h2>
-        {officerRequests.length === 0 ? (
-          <p className="text-sm text-gray-500">No pending requests.</p>
-        ) : (
-          officerRequests.map(req => (
-            <div
-              key={req.ID}
-              className="border-t first:border-t-0 py-4 flex justify-between items-center"
-            >
-              <div>
-                <p className="font-semibold">{req.Username}</p>
-                <p className="text-sm text-gray-500">{req.Email}</p>
-                <p className="text-sm text-gray-500">Department: {req.Department}</p>
-              </div>
-              <div className="space-x-2">
-                <button
-                  onClick={() => handleAccept(req.ID)}
-                  className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 cursor-pointer"
-                >
-                  Accept
-                </button>
-                <button
-                  onClick={() => handleDeny(req.ID)}
-                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 cursor-pointer"
-                >
-                  Deny
-                </button>
-              </div>
-            </div>
-          ))
-        )}
+  <h2 className="text-xl font-semibold mb-4">Officer Requests</h2>
+  {officerRequests.length === 0 ? (
+    <p className="text-sm text-gray-500">No pending requests.</p>
+  ) : (
+    officerRequests.map(req => (
+      <div
+        key={req.ID}
+        className="border-t first:border-t-0 py-4 flex justify-between items-center"
+      >
+        <div className="flex items-center space-x-4">
+          {req.ImageURL && (
+            <img
+              src={req.ImageURL}
+              alt={`${req.Username}'s ID`}
+              className="w-32 h-32 object-contain rounded border"
+            />
+          )}
+          <div>
+            <p className="font-semibold">{req.Username}</p>
+            <p className="text-sm text-gray-500">{req.Email}</p>
+            <p className="text-sm text-gray-500">Department: {req.Department}</p>
+            <p className="text-sm text-gray-500">Sector: {req.Sector}</p>
+            <p className="text-sm text-gray-500">Phone: {req.Phone}</p>
+          </div>
+        </div>
+        <div className="space-x-2">
+          <button
+            onClick={() => handleAccept(req.ID)}
+            className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 cursor-pointer"
+          >
+            Accept
+          </button>
+          <button
+            onClick={() => handleDeny(req.ID)}
+            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 cursor-pointer"
+          >
+            Deny
+          </button>
+        </div>
       </div>
+    ))
+  )}
+</div>
+
     </div>
   );
 }

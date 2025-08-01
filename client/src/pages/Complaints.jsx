@@ -1,8 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, CheckCircle2, Upload, FileText, Building, MessageSquare } from 'lucide-react';
+import {
+  AlertCircle,
+  CheckCircle2,
+  Upload,
+  FileText,
+  Building,
+  MessageSquare,
+} from 'lucide-react';
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
 
 function Complaints() {
   const [title, setTitle] = useState('');
@@ -12,131 +21,159 @@ function Complaints() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [location, setlocation] = useState({lat : '', lng : ''});
+  const [location, setLocation] = useState({ lat: null, lng: null });
+  const [locationError, setLocationError] = useState('');
   const navigate = useNavigate();
+
+  const resetForm = () => {
+    setTitle('');
+    setDepartment('');
+    setDescription('');
+    setMedia([]);
+  };
+
+  // Get auth token and redirect if missing
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    console.log(token);
-
+    const token = localStorage.getItem('token');
     if (!token) {
-      setError("Invalid Token");
-      setTimeout(() => {
-        navigate('/login') 
-        
-      }, 1000);
+      setError('Invalid token, redirecting to login...');
+      setTimeout(() => navigate('/login'), 1000);
+      return;
     }
 
-    handleGetLocation();
-  }, []);
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation not supported in your browser.');
+      return;
+    }
 
-  const handleGetLocation = () => {
-    if(navigator.geolocation){
-      navigator.geolocation.getCurrentPosition(position => {
-        setlocation({
-          lat : position.coords.latitude,
-          lng : position.coords.longitude,
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocation({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
         });
-      });
+      },
+      (err) => {
+        console.warn('Geolocation error:', err);
+        setLocationError(
+          'Could not get location. Please allow location access or enter manually.'
+        );
+      },
+      { timeout: 10000 }
+    );
+  }, [navigate]);
 
-      console.log(location.lat);
-      console.log(location.lng);
-    } else{
-      alert("Geolocation not supported");
-    }
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-    setSuccess('');
-
-    const token = localStorage.getItem("token");
-
-    const formData = new FormData();
-    formData.append('Title', title);
-    formData.append('Department', department);
-    formData.append('Description', description);
-    formData.append('Latitude' , location.lat);
-    formData.append('Longitude', location.lng);
-    
-    if (media && media.length > 0) {
-      media.forEach((file) => {
-      formData.append('media', file);
-     });
-}
-
-
-    try {
-      const response = await fetch('http://localhost:8080/complaint', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData,
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setSuccess(data.message);
-        
-        setTitle('');
-        setDepartment('');
-        setDescription('');
-        setMedia([]);
-
-        setTimeout(() => {
-          console.log("Redirecting to dashboard...");
-          navigate('/dashboard');
-        }, 1000);
-      } else {
-        const data = await response.json();
-        setError(data.error || 'Failed to submit complaint');
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      if (!title || !department || !description || description.length < 20) {
+        setError('Please fill all required fields with valid data.');
+        return;
       }
-    } catch (error) {
-      console.error('Submission error:', error);
-      setError('Network error. Please try again.');
-    } finally {
-      setIsLoading(false);
+      if (location.lat === null || location.lng === null) {
+        setError('Location not available. Please allow location access or enter manually.');
+        return;
+      }
+
+      setIsLoading(true);
+      setError('');
+      setSuccess('');
+
+      const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('Title', title);
+      formData.append('Department', department);
+      formData.append('Description', description);
+      formData.append('Latitude', String(location.lat));
+      formData.append('Longitude', String(location.lng));
+      media.forEach((file) => formData.append('media', file));
+
+      try {
+        const controller = new AbortController();
+        const response = await fetch(`${API_BASE}/complaint`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+          signal: controller.signal,
+        });
+
+        let data = {};
+        try {
+          data = await response.json();
+        } catch {
+          setError('Failed to parse server response.');
+          return;
+        }
+
+        if (response.ok) {
+          setSuccess(data.message || 'Complaint submitted successfully.');
+          resetForm();
+          setTimeout(() => {
+            navigate('/dashboard');
+          }, 1000);
+        } else {
+          setError(data.error || 'Failed to submit complaint.');
+        }
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+        console.error('Submission error:', err);
+        setError('Network error. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [title, department, description, media, location, navigate]
+  );
+
+  const handleFileChange = (e) => {
+    setError('');
+    const files = Array.from(e.target.files || []);
+    const tooLarge = [];
+    const dedupedToAdd = [];
+
+    files.forEach((file) => {
+      if (file.size > 10 * 1024 * 1024) {
+        tooLarge.push(file.name);
+      } else if (
+        !media.some((m) => m.name === file.name && m.size === file.size && m.lastModified === file.lastModified)
+      ) {
+        dedupedToAdd.push(file);
+      }
+    });
+
+    if (tooLarge.length) {
+      setError(`These files exceed 10MB and were skipped: ${tooLarge.join(', ')}`);
+    }
+
+    if (dedupedToAdd.length) {
+      setMedia((prev) => [...prev, ...dedupedToAdd]);
     }
   };
 
-  const handleFileChange = (e) => {
-  const files = Array.from(e.target.files);
-  const validFiles = [];
-
-  for (let file of files) {
-    if (file.size > 10 * 1024 * 1024) {
-      setError('Each file must be less than 10MB');
-      return;
-    }
-    validFiles.push(file);
-  }
-
-  setMedia((prevMedia => [...prevMedia, ...validFiles]));
-  setError('');
-};
-
   const handleInputChange = (setter) => (e) => {
     setter(e.target.value);
-    if (error) setError(''); 
+    if (error) setError('');
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f9f7f3] to-[#F1EFEC]">
-      <div className='mb-20'>
+      <div className="mb-20">
         <Navbar />
       </div>
+
       <div className="bg-white shadow-sm border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          
           <div className="flex items-center justify-center gap-3">
             <div className="p-2 bg-primary rounded-lg">
               <FileText className="w-6 h-6 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-text">Submit Complaint</h1>
           </div>
-          <p className="text-gray-600 mt-2 text-center">Help us improve by reporting issues in your area</p>
+          <p className="text-gray-600 mt-2 text-center">
+            Help us improve by reporting issues in your area
+          </p>
         </div>
       </div>
 
@@ -149,7 +186,7 @@ function Complaints() {
             </div>
           </div>
         )}
-        
+
         {success && (
           <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-400 rounded-r-lg">
             <div className="flex items-center">
@@ -162,17 +199,21 @@ function Complaints() {
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
           <div className="bg-primary px-8 py-6">
             <h2 className="text-2xl font-bold text-white">Complaint Details</h2>
-            <p className="text-white/90 mt-1">Please provide detailed information about your complaint</p>
+            <p className="text-white/90 mt-1">
+              Please provide detailed information about your complaint
+            </p>
           </div>
 
-          <div className="p-8 space-y-8">
+          <form onSubmit={handleSubmit} className="p-8 space-y-8">
             <div className="grid md:grid-cols-3 gap-6">
-           
               <div className="md:col-span-2 space-y-2">
-                <label htmlFor="title" className="flex items-center gap-2 text-lg font-semibold text-text">
+                <label
+                  htmlFor="title"
+                  className="flex items-center gap-2 text-lg font-semibold text-text"
+                >
                   <FileText className="w-5 h-5 text-primary" />
                   Complaint Title *
-                </label>  
+                </label>
                 <input
                   id="title"
                   type="text"
@@ -185,7 +226,10 @@ function Complaints() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="department" className="flex items-center gap-2 text-lg font-semibold text-text">
+                <label
+                  htmlFor="department"
+                  className="flex items-center gap-2 text-lg font-semibold text-text"
+                >
                   <Building className="w-5 h-5 text-[#00897B]" />
                   Department *
                 </label>
@@ -201,13 +245,22 @@ function Complaints() {
                     <option value="road">Road & Infrastructure</option>
                     <option value="sanitation">Sanitation & Waste</option>
                     <option value="power">Power & Utilities</option>
-                    <option value="water">Water Supply</option>
-                    <option value="public safety">Public Safety</option>
-                    <option value="other">Other</option>
+                    <option value="water">Water Supply</option> 
+
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      ></path>
                     </svg>
                   </div>
                 </div>
@@ -215,7 +268,10 @@ function Complaints() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="description" className="flex items-center gap-2 text-lg font-semibold text-text">
+              <label
+                htmlFor="description"
+                className="flex items-center gap-2 text-lg font-semibold text-text"
+              >
                 <MessageSquare className="w-5 h-5 text-primary" />
                 Detailed Description *
               </label>
@@ -229,7 +285,11 @@ function Complaints() {
                 required
               />
               <p className="text-sm text-gray-500">
-                {description.length}/500 characters ({description.length < 20 ? 'Minimum 20 characters required' : 'Good!'})
+                {description.length}/500 characters (
+                {description.length < 20
+                  ? 'Minimum 20 characters required'
+                  : 'Good!'}
+                )
               </p>
             </div>
 
@@ -254,53 +314,73 @@ function Complaints() {
                   <div className="text-center">
                     <Upload className="w-10 h-10 mx-auto text-gray-400 group-hover:text-[#00897B] transition-colors" />
                     <p className="mt-2 text-sm text-gray-600">
-                      <span className="font-semibold text-[#00897B]">Click to upload</span> or drag and drop
+                      <span className="font-semibold text-[#00897B]">
+                        Click to upload
+                      </span>{' '}
+                      or drag and drop
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">PNG, JPG, MP4 up to 10MB</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      PNG, JPG, MP4 up to 10MB
+                    </p>
                   </div>
                 </label>
                 {media.length > 0 && (
-                     <div className="mt-3 space-y-2">
-                       {media.map((file, index) => (
-                         <div
-                           key={index}
-                           className="p-3 bg-green-50 rounded-lg border border-green-200 flex items-center justify-between"
-                         >
-                           <div className="flex items-center gap-2">
-                             <CheckCircle2 className="w-4 h-4 text-green-600" />
-                             <span className="text-sm text-green-700 font-medium">
-                               {file.name} ({(file.size / (1024 * 1024)).toFixed(2)} MB)
-                             </span>
-                           </div>
-                           <button
-                             type="button"
-                             onClick={() => {
-                               const newFiles = [...media];
-                               newFiles.splice(index, 1);
-                               setMedia(newFiles);
-                             }}
-                             className="text-red-500 hover:text-red-700 text-sm font-medium"
-                           >
-                             Remove
-                           </button>
-                         </div>
-                       ))}
-                     </div>
-                   )}
-                   
+                  <div className="mt-3 space-y-2">
+                    {media.map((file, index) => (
+                      <div
+                        key={index}
+                        className="p-3 bg-green-50 rounded-lg border border-green-200 flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-600" />
+                          <span className="text-sm text-green-700 font-medium">
+                            {file.name} (
+                            {(file.size / (1024 * 1024)).toFixed(2)} MB)
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMedia((prev) => {
+                              const copy = [...prev];
+                              copy.splice(index, 1);
+                              return copy;
+                            });
+                          }}
+                          className="text-red-500 hover:text-red-700 text-sm font-medium"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
+            {locationError && (
+              <div className="p-3 bg-yellow-50 border border-yellow-400 rounded-md">
+                <p className="text-yellow-700">
+                  {locationError} You can still submit; location will be blank.
+                </p>
+              </div>
+            )}
+
             <div className="flex justify-center pt-4">
               <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isLoading || !title || !department || !description || description.length < 20}
+                type="submit"
+                disabled={
+                  isLoading ||
+                  !title ||
+                  !department ||
+                  !description ||
+                  description.length < 20
+                }
                 className="px-8 py-4 bg-primary text-white font-bold text-lg rounded-2xl hover:shadow-lg transform hover:scale-105 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {isLoading ? (
                   <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     Submitting Complaint...
                   </div>
                 ) : (
@@ -312,35 +392,38 @@ function Complaints() {
             {/* Form Status */}
             <div className="text-center text-sm text-gray-500">
               <p>* Required fields</p>
-              {(!title || !department || !description || description.length < 20) && (
-                <p className="text-amber-600 mt-1">Please fill all required fields to submit</p>
+              {(!title ||
+                !department ||
+                !description ||
+                description.length < 20) && (
+                <p className="text-amber-600 mt-1">
+                  Please fill all required fields to submit
+                </p>
               )}
             </div>
-          </div>
+          </form>
         </div>
 
         <div className="mt-8 bg-white rounded-xl p-6 shadow-md border border-gray-100">
-          <h3 className="text-lg font-semibold text-text mb-3">How to write an effective complaint:</h3>
+          <h3 className="text-lg font-semibold text-text mb-3">
+            How to write an effective complaint:
+          </h3>
           <ul className="space-y-2 text-gray-600">
-            <li className="flex items-start gap-2">
-              <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
-              <span>Be specific about the location and time of the issue</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
-              <span>Include photos or videos if possible to support your complaint</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
-              <span>Describe the impact this issue has on you and your community</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
-              <span>Use clear and professional language</span>
-            </li>
+            {[
+              'Be specific about the location and time of the issue',
+              'Include photos or videos if possible to support your complaint',
+              'Describe the impact this issue has on you and your community',
+              'Use clear and professional language',
+            ].map((tip) => (
+              <li key={tip} className="flex items-start gap-2">
+                <div className="w-2 h-2 bg-primary rounded-full mt-2" />
+                <span>{tip}</span>
+              </li>
+            ))}
           </ul>
         </div>
       </div>
+
       <Footer />
     </div>
   );

@@ -34,9 +34,10 @@ func GoogleLogin(c *fiber.Ctx) error {
 	var user models.User
 	if err := db.DB.Where("email = ?", email).First(&user).Error; err != nil {
 		user = models.User{
-			Username: name,
-			Email:    email,
-			Role:     "citizen",
+			Username:   name,
+			Email:      email,
+			Role:       "citizen",
+			IsVerified: true,
 		}
 		if err := db.DB.Create(&user).Error; err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "failed to create user"})

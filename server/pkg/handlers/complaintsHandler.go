@@ -18,7 +18,11 @@ func ComplaintSubmit(c *fiber.Ctx) error {
 	description := c.FormValue("Description")
 	longitudeStr := c.FormValue("Longitude")
 	latitudeStr := c.FormValue("Latitude")
-
+	if title == "" || department == "" || description == "" || longitudeStr == "" || latitudeStr == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Title, Department, Description, Latitude and Longitude are required",
+		})
+	}
 	latitude, err := strconv.ParseFloat(latitudeStr, 64)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -40,21 +44,6 @@ func ComplaintSubmit(c *fiber.Ctx) error {
 		})
 	}
 
-	var imageURL string
-
-	// Upload first media file (if any)
-	form, err := c.MultipartForm()
-	if err == nil && form.File != nil && len(form.File["media"]) > 0 {
-		file := form.File["media"][0] // Take only the first file
-		imageURL, err = utils.UploadToCloudinary(file)
-		if err != nil {
-			log.Println("Cloudinary upload error:", err)
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to upload media",
-			})
-		}
-	}
-
 	complaint := models.Complaint{
 		UserID:      user,
 		Title:       title,
@@ -62,17 +51,39 @@ func ComplaintSubmit(c *fiber.Ctx) error {
 		Department:  department,
 		Latitude:    latitude,
 		Longitude:   longitude,
-		ImageURL:    imageURL,
 	}
 
 	if err := db.DB.Create(&complaint).Error; err != nil {
-		return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Map{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
 
+	form, err := c.MultipartForm()
+	if err == nil && form.File != nil && len(form.File["media"]) > 0 {
+		files := form.File["media"]
+
+		for _, file := range files {
+			imageURL, err := utils.UploadToCloudinary(file)
+			if err != nil {
+				log.Println("Cloudinary upload error:", err)
+				continue
+			}
+
+			media := models.ComplaintMedia{
+				ComplaintID: complaint.ID,
+				ImageURL:    imageURL,
+			}
+
+			if err := db.DB.Create(&media).Error; err != nil {
+				log.Println("Failed to save media:", err)
+				continue
+			}
+		}
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Complaint Uploaded Successfully",
+		"message": "Complaint submitted successfully",
 	})
 }
 
@@ -97,7 +108,6 @@ func GetComplaints(c *fiber.Ctx) error {
 }
 
 func GetComplaintsByDepartment(c *fiber.Ctx) error {
-	// Step 1: Get Officer ID
 	officerID := c.Params("id")
 
 	var officer models.Officer
@@ -107,9 +117,8 @@ func GetComplaintsByDepartment(c *fiber.Ctx) error {
 		})
 	}
 
-	// Step 2: Filter complaints by department
 	var complaints []models.Complaint
-	if err := db.DB.Where("LOWER(department) = LOWER(?)", officer.Department).Find(&complaints).Error; err != nil {
+	if err := db.DB.Preload("Media").Where("LOWER(department) = LOWER(?)", officer.Department).Find(&complaints).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to fetch complaints",
 		})
@@ -131,4 +140,49 @@ func GetAllComplaints(c *fiber.Ctx) error {
 	log.Printf("Fetched %d complaints", len(complaints))
 
 	return c.Status(fiber.StatusOK).JSON(complaints)
+}
+
+func SolveComplaint(c *fiber.Ctx) error {
+	officerID := c.Locals("user_id")
+	officer, ok := officerID.(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid officer authentication",
+		})
+	}
+
+	complaintIDStr := c.Params("id")
+	complaintID, err := strconv.ParseUint(complaintIDStr, 10, 32)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid complaint ID",
+		})
+	}
+
+	var complaint models.Complaint
+	if err := db.DB.First(&complaint, uint(complaintID)).Error; err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Complaint not found",
+		})
+	}
+
+	if complaint.Status == "Solved" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Complaint is already solved",
+		})
+	}
+	complaint.Status = "Solved"
+
+	if err := db.DB.Save(&complaint).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to update complaint status",
+		})
+	}
+
+	log.Printf("Complaint ID %d marked as solved by officer ID %d", complaintID, officer)
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message":   "Complaint marked as solved successfully",
+		"complaint": complaint,
+	})
 }

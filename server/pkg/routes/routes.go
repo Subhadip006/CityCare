@@ -34,6 +34,7 @@ func Setup(app *fiber.App) {
 	officerGroup := userGroup.Group("/officer", middleware.RoleMiddleware("officer"))
 	officerGroup.Post("/onboard", officerhandler.OnboardingHandler)
 	officerGroup.Get("/profile", officerhandler.GetOfficerProfile)
+	officerGroup.Put("/solve/:id", handlers.SolveComplaint)
 
 	// === Admin Routes ===
 	adminGroup := userGroup.Group("/admin", middleware.RoleMiddleware("admin"))

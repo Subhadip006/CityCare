@@ -33,9 +33,9 @@ function Dashboard() {
   const countStatus = (complaintsList) => {
     const counts = { Total: 0, inProgress: 0, resolved: 0 };
     complaintsList.forEach((c) => {
-      if (c.Status === 'pending' || c.Status === 'resolved') counts.Total++;
+      if (c.Status === 'pending' || c.Status === 'Solved') counts.Total++;
       if (c.Status === 'pending') counts.inProgress++;
-      if (c.Status === 'resolved') counts.resolved++;
+      if (c.Status === 'Solved') counts.resolved++;
     });
     setStatusCount(counts);
   };
@@ -43,7 +43,7 @@ function Dashboard() {
   const fetchComplaints = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch('http://localhost:8080/complaints', {
+      const res = await fetch('http://localhost:8000/complaints', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -65,7 +65,7 @@ function Dashboard() {
   const handleDeleteComplaint = async (id) => {
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`http://localhost:8080/complaints/${id}`, {
+      const res = await fetch(`http://localhost:8000/complaints/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -84,7 +84,7 @@ function Dashboard() {
     if (!token) return navigate('/login');
 
     try {
-      const res = await fetch('http://localhost:8080/dashboard', {
+      const res = await fetch('http://localhost:8000/dashboard', {
         headers: {
           Authorization: `Bearer ${token}`,
         },

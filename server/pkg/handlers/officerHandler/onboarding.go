@@ -3,11 +3,11 @@ package officerhandler
 import (
 	"github.com/Subhadip006/CityCare/pkg/db"
 	"github.com/Subhadip006/CityCare/pkg/models"
+	"github.com/Subhadip006/CityCare/pkg/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
 func OnboardingHandler(c *fiber.Ctx) error {
-	// Extract user_id as uint from locals
 	userID, ok := c.Locals("user_id").(uint)
 	if !ok {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -28,7 +28,6 @@ func OnboardingHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// Extract form data
 	name := c.FormValue("username")
 	department := c.FormValue("department")
 	phone := c.FormValue("phone")
@@ -41,13 +40,16 @@ func OnboardingHandler(c *fiber.Ctx) error {
 	}
 
 	file, err := c.FormFile("id_image")
+	var imageURL string
 	if err == nil {
-		savePath := "./uploads/id_images/" + file.Filename
-		if err := c.SaveFile(file, savePath); err != nil {
+		imageURL, err = utils.UploadToCloudinary(file)
+		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to save ID image",
+				"error": "Failed to upload ID image to Cloudinary",
 			})
 		}
+
+		officer.ImageURL = imageURL
 
 	}
 

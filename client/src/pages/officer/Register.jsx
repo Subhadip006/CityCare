@@ -11,6 +11,8 @@ function OfficerRegister() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/';
+
   const isDisabled = loading || !email || password.length < 6 || password !== confirmPassword;
 
   const handleSubmit = async (e) => {
@@ -20,7 +22,7 @@ function OfficerRegister() {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:8080/officerRegister', {
+      const res = await fetch(`${BASE_URL}officerRegister`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, role : "officer" }),
@@ -38,7 +40,7 @@ function OfficerRegister() {
       } else {
         setError(data.message || 'Registration failed');
       }
-    } catch (err) {
+    } catch {
       setError('Server error. Try again later.');
     } finally {
       setLoading(false);

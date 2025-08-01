@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/Subhadip006/CityCare/pkg/models"
 	"gorm.io/driver/postgres"
@@ -13,7 +14,11 @@ var DB *gorm.DB
 
 func Connect() {
 
-	dsn := "host=localhost	user=myuser password=mypassword dbname=mydb port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+	dsn := os.Getenv("DATABASE_URL")
+	if dsn == "" {
+		log.Fatal("DATABASE_URL environment variable is not set")
+	}
+	fmt.Println("Connecting to database...")
 
 	connection, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
@@ -29,6 +34,7 @@ func Connect() {
 		&models.Officer{},
 		&models.RequestedOfficer{},
 		&models.Admin{},
+		&models.ComplaintMedia{},
 	)
 
 	if err != nil {
