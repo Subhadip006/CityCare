@@ -10,46 +10,55 @@ function Register() {
   const [success, setsuccess] = useState('');
   const navigate = useNavigate();
 
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/';
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    seterror('');
-    setsuccess('');
+  e.preventDefault();
+  seterror('');
+  setsuccess('');
 
-    try {
-      const res = await fetch('http://localhost:8000/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          Username: name,
-          Email: email,
-          Password: password,
-          Role: 'citizen',
-        }),
-      });
+  try {
+    const res = await fetch(`${BASE_URL}register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        Username: name,
+        Email: email,
+        Password: password,
+        Role: 'citizen',
+      }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (res.status === 200) {
-        localStorage.setItem('token', data.token);
-        setsuccess(data.message);
-        setname('');
-        setemail('');
-        setpassword('');
-        setTimeout(() => navigate('/dashboard'), 2000);
+    const emailFail = data.error && data.error.toLowerCase().includes('failed to send email');
+
+    if (res.status === 200 || emailFail) {
+      localStorage.setItem('token', data.token);
+      if (emailFail) {
+        setsuccess('Registered successfully, but verification email failed to send.');  
       } else {
-        seterror(data.error);
+        setsuccess(data.message);
       }
-    } catch {
-      seterror('Registration failed. Please try again.');
+      setname('');
+      setemail('');
+      setpassword('');
+      setTimeout(() => navigate('/dashboard'), 1500);
+    } else {
+      seterror(data.error || 'Registration failed');
     }
-  };
+  } catch (err) {
+    seterror('Registration failed. Please try again.');
+  }
+};
+
 
   const handleGoogleLogin = async (response) => {
     seterror('');
     setsuccess('');
     try {
       const id_token = response.credential;
-      const res = await fetch('http://localhost:8000/auth/google', {
+      const res = await fetch(`${BASE_URL}auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: id_token }),

@@ -42,17 +42,17 @@ func Register(c *fiber.Ctx) error {
 
 	err = utils.SendVerificationMail(user.Email, token)
 
-	if err != nil {
-
-		fmt.Println("Error sending verification email:", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "failed to send email",
-		})
-	}
-
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message":  "user created, verification email sent",
+	response := fiber.Map{
+		"message":  "user created",
 		"token":    token,
 		"verified": user.IsVerified,
-	})
+	}
+
+	if err != nil {
+		fmt.Println("Error sending verification email:", err)
+		response["message"] = "user created, but verification email failed to send"
+		response["email_error"] = err.Error()
+	}
+
+	return c.Status(fiber.StatusOK).JSON(response)
 }

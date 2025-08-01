@@ -11,12 +11,7 @@ func SendVerificationMail(to string, token string) error {
 
 	client := resend.NewClient(os.Getenv("RESEND_API_KEY"))
 
-	baseURL := os.Getenv("APP_BASE_URL")
-	if baseURL == "" {
-		baseURL = "http://localhost:8000/"
-	}
-
-	verificationLink := fmt.Sprintf("%s/verify?token=%s", baseURL, token)
+	verificationLink := fmt.Sprintf("http://localhost:8000/verify?token=%s", token)
 
 	params := &resend.SendEmailRequest{
 		From:    "onboarding@resend.dev",
