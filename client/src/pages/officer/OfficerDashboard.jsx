@@ -11,9 +11,11 @@ const OfficerDashboard = () => {
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem('token');
 
+
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/';
   const fetchComplaintsByDepartment = async (officerId) => {
     try {
-      const res = await fetch(`http://localhost:8000/complaints/department/${officerId}`, {
+      const res = await fetch(`${BASE_URL}complaints/department/${officerId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -38,7 +40,7 @@ const OfficerDashboard = () => {
     }
 
     try {
-      const res = await fetch('http://localhost:8000/officer/profile', {
+      const res = await fetch(`${BASE_URL}officer/profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -66,7 +68,7 @@ const OfficerDashboard = () => {
     setError('');
 
     try {
-      const res = await fetch(`http://localhost:8000/officer/solve/${complaintId}`, {
+      const res = await fetch(`${BASE_URL}officer/solve/${complaintId}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
