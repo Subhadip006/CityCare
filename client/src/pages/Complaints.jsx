@@ -55,7 +55,7 @@ function Complaints() {
       (err) => {
         console.warn('Geolocation error:', err);
         setLocationError(
-          'Could not get location.'
+          'Could not get location. Please allow location access.'
         );
       },
       { timeout: 10000 }
@@ -65,8 +65,12 @@ function Complaints() {
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
-      if (!title || !department || !description || description.length < 20) {
+      if (!title || !department || !description || description.length < 20 || location.lat === null || location.lng === null) {
         setError('Please fill all required fields with valid data.');
+        return;
+      }
+      if (location.lat === null || location.lng === null) {
+        setError('Location not available. Please allow location access.');
         return;
       }
 
