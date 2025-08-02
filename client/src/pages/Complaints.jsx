@@ -360,7 +360,7 @@ function Complaints() {
             {locationError && (
               <div className="p-3 bg-yellow-50 border border-yellow-400 rounded-md">
                 <p className="text-yellow-700">
-                  {locationError} You can still submit; location will be blank.
+                  {locationError} please give location access. Please refresh the page to give access
                 </p>
               </div>
             )}
