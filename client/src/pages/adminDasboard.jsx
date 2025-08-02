@@ -53,7 +53,7 @@ function AdminDashboard() {
 
   const handleAccept = async (id) => {
     try {
-      const res = await fetch(`http://localhost:8000/admin/officerAccept/${id}`, {
+      const res = await fetch(`${BASE_URL}admin/officerAccept/${id}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -66,7 +66,7 @@ function AdminDashboard() {
 
   const handleDeny = async (id) => {
     try {
-      const res = await fetch(`http://localhost:8000/admin/officerDeny/${id}`, {
+      const res = await fetch(`${BASE_URL}admin/officerDeny/${id}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });

@@ -18,7 +18,7 @@ func Setup(app *fiber.App) {
 	app.Post("/auth/google", auth.GoogleLogin)
 	app.Get("/verify", handlers.VerifyEmail)
 
-	app.Post("admin/auth", auth.AdminAuth)
+	app.Post("/admin/auth", auth.AdminAuth)
 	app.Get("/complaints/all", handlers.GetAllComplaints)
 
 	// === Protected User Routes ===

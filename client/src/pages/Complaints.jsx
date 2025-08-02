@@ -11,7 +11,7 @@ import {
   MessageSquare,
 } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/';
 
 function Complaints() {
   const [title, setTitle] = useState('');
@@ -32,7 +32,6 @@ function Complaints() {
     setMedia([]);
   };
 
-  // Get auth token and redirect if missing
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -90,7 +89,7 @@ function Complaints() {
 
       try {
         const controller = new AbortController();
-        const response = await fetch(`${API_BASE}/complaint`, {
+        const response = await fetch(`${BASE_URL}complaint`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,

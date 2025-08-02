@@ -1,0 +1,14 @@
+{
+  "version": 3,
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://citycare-cvpc.onrender.com/:path*"
+    },
+    {
+      "source": "/auth/google",
+      "destination": "https://citycare-cvpc.onrender.com/auth/google"
+    }
+  ]
+}
