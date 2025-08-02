@@ -18,6 +18,8 @@ function Dashboard() {
   const [toDeleteId, setToDeleteId] = useState(null);
   const [Verified, setVerified] = useState(false)
 
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/';
+
   const [statusCount, setStatusCount] = useState({
     Total: 0,
     inProgress: 0,
@@ -25,10 +27,6 @@ function Dashboard() {
   });
 
   const navigate = useNavigate();
-
-  const handleUpdateClick = () => {
-    navigate('/profile/update');
-  };
 
   const countStatus = (complaintsList) => {
     const counts = { Total: 0, inProgress: 0, resolved: 0 };
@@ -43,7 +41,7 @@ function Dashboard() {
   const fetchComplaints = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch('http://localhost:8000/complaints', {
+      const res = await fetch(`${BASE_URL}complaints`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -65,7 +63,7 @@ function Dashboard() {
   const handleDeleteComplaint = async (id) => {
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`http://localhost:8000/complaints/${id}`, {
+      const res = await fetch(`${BASE_URL}complaints/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -84,7 +82,7 @@ function Dashboard() {
     if (!token) return navigate('/login');
 
     try {
-      const res = await fetch('http://localhost:8000/dashboard', {
+      const res = await fetch(`${BASE_URL}dashboard`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -100,7 +98,7 @@ function Dashboard() {
       } else {
         navigate('/login');
       }
-    } catch (err) {
+    } catch {
       setError('Something went wrong');
     }
   };
@@ -123,12 +121,7 @@ function Dashboard() {
 
             <p className="text-sm text-gray-500">Here's an overview of your complaints.</p>
           </div>
-          <button
-            onClick={handleUpdateClick}
-            className="text-primary border border-primary px-4 py-2 rounded-md hover:bg-primary hover:text-white transition"
-          >
-            Edit Profile
-          </button>
+          
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
