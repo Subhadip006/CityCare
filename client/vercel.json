@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "cleanUrls": true,
   "rewrites": [
     {
@@ -9,6 +9,10 @@
     {
       "source": "/auth/google",
       "destination": "https://citycare-cvpc.onrender.com/auth/google"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
