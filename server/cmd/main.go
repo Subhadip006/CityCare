@@ -28,7 +28,7 @@ func main() {
 	})
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000,http://frontend:3000",
+		AllowOrigins:     "http://localhost:3000,http://frontend:3000, https://citycare-live.vercel.app",
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
 		AllowCredentials: true,
