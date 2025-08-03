@@ -32,9 +32,14 @@ const router = createBrowserRouter([
   {path: '/officer/onboarding', element: <OfficerOnboarding />}
 ])
 
+if (import.meta.env.VITE_GOOGLE_CLIENT_ID) {
+  console.log('Google Client ID is set:');
+} else {
+  console.error('Google Client ID is not set. Please check your environment variables.');
+}
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <GoogleOAuthProvider clientId="802392548098-rojudnh96bvrgm42fpp05k2jm8ugrl90.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <RouterProvider router={router} />
     </GoogleOAuthProvider>
   </StrictMode>
