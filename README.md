@@ -32,7 +32,7 @@ CityCare is a civic engagement platform that empowers citizens to report issues 
 - **Map Integration** — Pin complaint locations using Leaflet maps.
 - **Admin Dashboard** - Unified Dashboard for accepting or rejecting officers request, and to view to total, pending, resolved complaints.
 
-## Poject Structure
+## Project Structure
 
 ```
 citycare/
