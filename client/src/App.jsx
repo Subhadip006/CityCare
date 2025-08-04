@@ -3,8 +3,11 @@ import './App.css'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Footer from './components/Footer'
+import { Analytics } from "@vercel/analytics/react"
 
 function App() {
+
+
 
   console.log(import.meta.env.VITE_API_BASE_URL)
   return (
@@ -20,6 +23,7 @@ function App() {
           <Footer />
         </footer>
       </div>
+      {import.meta.env.VITE_API_BASE_URL !== 'http://localhost:8000/' ? <Analytics /> : null}
     </>
   )
 }

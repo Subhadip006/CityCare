@@ -12,6 +12,7 @@
   "dependencies": {
     "@react-oauth/google": "^0.12.2",
     "@tailwindcss/vite": "^4.1.8",
+    "@vercel/analytics": "^1.5.0",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.513.0",
