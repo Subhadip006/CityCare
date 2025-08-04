@@ -8,6 +8,8 @@ function Hero() {
 
   const  BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/';
 
+  const token = localStorage.getItem('token');
+
   useEffect(() => {
     const wake = async () => {
       try {
@@ -81,14 +83,25 @@ function Hero() {
     <div className='flex flex-col items-center justify-center bg-primary text-white px-6 py-16'>
       <h1 className='text-4xl font-semibold text-white font-sans pb-4'>Join the Movement</h1>
       <p className='text-xl text-white font-sans'>Together, we can make our cities better places to live.</p>
-      <Link to="/register">
-        <Button
-          text="Get Started"
-          color="bg-white"
-          textColor="text-primary"
-          className="px-6 py-3 rounded-lg cursor-pointer font-semibold shadow-md transition mt-8 hover:shadow-2xl hover:bg-gray-100 hover:text-primary"
-        />
-      </Link>
+      {token ? (
+        <Link to="/dashboard">
+          <Button
+            text="Go to Dashboard"
+            color="bg-white"
+            textColor="text-primary"
+            className="px-6 py-3 rounded-lg cursor-pointer font-semibold shadow-md transition mt-8 hover:shadow-2xl hover:bg-gray-100 hover:text-primary"
+          />
+        </Link>
+      ) : (
+        <Link to="/register">
+          <Button
+            text="Get Started"
+            color="bg-white"
+            textColor="text-primary"
+            className="px-6 py-3 rounded-lg cursor-pointer font-semibold shadow-md transition mt-8 hover:shadow-2xl hover:bg-gray-100 hover:text-primary"
+          />
+        </Link>
+      )}
 
     </div>
 
