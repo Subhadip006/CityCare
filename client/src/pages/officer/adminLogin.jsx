@@ -7,12 +7,14 @@ function AdminLogin() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/';
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
 
     try {
-      const res = await fetch('http://localhost:8000/admin/auth', {
+      const res = await fetch(`${BASE_URL}admin/auth`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,7 +77,7 @@ function AdminLogin() {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          className="w-full bg-orange-300 text-white py-2 rounded hover:bg-orange-500"
         >
           Login
         </button>
