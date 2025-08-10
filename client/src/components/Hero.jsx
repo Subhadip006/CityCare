@@ -54,10 +54,10 @@ function Hero() {
 
     
     <div className='flex flex-col items-center justify-center bg-white text-text px-6 py-16'>
-          <h1 className='text-4xl font-semibold text-text font-sans pb-4'>How It Works</h1>
+          <h1 className='text-3xl md:text-4xl font-semibold text-text font-sans pb-4'>How It Works</h1>
           <p className='text-xl text-gray-600 font-sans'>Simple step to make your voice heard and improve your community</p>
 
-          <div className='pt-12 flex flex-row items-center justify-center gap-8'>
+          <div className='pt-12 flex flex-col sm:flex-row items-center justify-center gap-8'>
             <Card
                  icon={<FileText className="w-8 h-8 text-secondary" />}
                  title="Submit Complaint"
