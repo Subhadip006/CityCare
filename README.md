@@ -6,6 +6,8 @@
 
 CityCare is a civic engagement platform that empowers citizens to report issues in their community, track complaint progress, and collaborate with local authorities to improve their neighborhoods.
 
+![Image 1](https://res.cloudinary.com/debj4rp45/image/upload/v1754202653/Screenshot_2025-08-03_at_12-00-44_CityCare_efhqrc.png)
+
 
 # Badges
 
@@ -147,8 +149,6 @@ VITE_API_BASE_URL = http://localhost:8000
  ```
 
 ## Images
-
-![Image 1](https://res.cloudinary.com/debj4rp45/image/upload/v1754202653/Screenshot_2025-08-03_at_12-00-44_CityCare_efhqrc.png)
 
 ---
 
